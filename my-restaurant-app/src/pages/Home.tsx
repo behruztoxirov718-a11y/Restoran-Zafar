@@ -556,7 +556,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
               </div>
             ) : (
               <div className="res-success show">
-                <div className="res-success-icon">🎉</div>
+                <div className="res-success-icon">✅</div>
                 <h4>{lang === 'uz' ? 'Stol Band Qilindi!' : lang === 'ru' ? 'Стол Забронирован!' : 'Table Reserved!'}</h4>
                 <p>{lang === 'uz' ? 'Tez orada siz bilan bog\'lanamiz.' : lang === 'ru' ? 'Мы свяжемся с вами в ближайшее время.' : 'We will contact you shortly.'}</p>
               </div>

@@ -98,7 +98,7 @@ export const T: TranslationType = {
     footer_pages: "Sahifalar",
     footer_dishes: "Taomlar",
     footer_copy: "© 2026 Zafar Dasturxon. Barcha huquqlar himoyalangan.",
-    footer_credit: "Dizayn: Claude bilan yaratilgan",
+    footer_credit: "Dev:Bexruz Toxirov",
     
     // BOSH SAHIFA UCHUN MATNLAR (Tushib qolgan kalitlar to'liq qayta tiklandi)
     card1_cat: "Milliy Taom",
@@ -251,7 +251,7 @@ export const T: TranslationType = {
     footer_pages: "Страницы",
     footer_dishes: "Блюда",
     footer_copy: "© 2026 Zafar Dasturxon. Все права защищены.",
-    footer_credit: "Дизайн: создан с Claude",
+    footer_credit: "Дев:Бехруз Тахиров ",
 
     // BOSH SAHIFA UCHUN MATNLAR
     card1_cat: "Национальное Блюдо",
@@ -404,7 +404,7 @@ export const T: TranslationType = {
     footer_pages: "Pages",
     footer_dishes: "Dishes",
     footer_copy: "© 2026 Zafar Dasturxon. All rights reserved.",
-    footer_credit: "Design: built with Claude",
+    footer_credit: "Dev:Bekhruz Tokhirov",
 
     // BOSH SAHIFA UCHUN MATNLAR
     card1_cat: "National Dish",
