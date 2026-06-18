@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { T } from '../translations';
 
@@ -25,7 +24,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [likes, setLikes] = useState<{ [key: string]: boolean }>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   
-  // Buyurtmani rasmiylashtirish formasi
+  const [addedStatus, setAddedStatus] = useState<{ [key: string]: boolean }>({});
+
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -33,9 +33,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [orderError, setOrderError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // Barcha taomlar ma'lumotlar bazasi (hech biri tashlab ketilmadi)
   const menuItems = [
-    // MILLIY
     {
       id: 'm1', cat: 'milliy', nameUz: 'Samarqand Oshi', nameRu: 'Самаркандский Плов', nameEn: 'Samarkand Plov',
       price: 45000, img: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&q=80',
@@ -51,7 +49,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       price: 38000, img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&q=80',
       descKey: 'desc_manti', badge: 'new', badgeKey: 'badge_new', meta: '🕐 40 min • 👤 1–2'
     },
-    // GRILL
     {
       id: 'g1', cat: 'grill', nameUz: 'Tandir Kabob', nameRu: 'Тандырный Кабоб', nameEn: 'Tandoor Kebab',
       price: 62000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
@@ -67,7 +64,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       price: 48000, img: 'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=600&q=80',
       descKey: 'desc_lula', badge: 'new', badgeKey: 'badge_new', meta: '🕐 20 min • 👤 1'
     },
-    // SHO'RVALAR
     {
       id: 's1', cat: 'shorva', nameUz: "Qo'zi Sho'rva", nameRu: 'Шурпа из Баранины', nameEn: 'Lamb Shorva',
       price: 35000, img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=600&q=80',
@@ -78,7 +74,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       price: 28000, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80',
       descKey: 'desc_mastava', meta: '🕐 15 min • 👤 1'
     },
-    // SALATLAR
     {
       id: 'sl1', cat: 'salat', nameUz: 'Achichuk', nameRu: 'Аччичук', nameEn: 'Achichuk Salad',
       price: 18000, img: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80',
@@ -89,7 +84,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       price: 22000, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
       descKey: 'desc_tsalat', badge: 'veg', badgeKey: 'badge_veg', meta: '🕐 8 min • 🥬'
     },
-    // NON & SOMSA
     {
       id: 'n1', cat: 'non', nameUz: 'Tandirda Non', nameRu: 'Тандырная Лепёшка', nameEn: 'Tandoor Bread',
       price: 8000, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80',
@@ -100,7 +94,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       price: 12000, img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80',
       descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
     },
-    // ICHIMLIKLAR
     {
       id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
       price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
@@ -111,7 +104,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       price: 14000, img: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=600&q=80',
       descKey: 'desc_sharbat', badge: 'new', badgeKey: 'badge_new', meta: '🧊 • 🍎'
     },
-    // SHIRINLIKLAR
     {
       id: 'sh1_s', cat: 'shirinlik', nameUz: 'Uy Halvasi', nameRu: 'Домашняя Халва', nameEn: 'Homemade Halva',
       price: 16000, img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80',
@@ -166,22 +158,29 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         qty: 1
       }];
     });
+
+    setAddedStatus(prev => ({ ...prev, [item.id]: true }));
+    setTimeout(() => {
+      setAddedStatus(prev => ({ ...prev, [item.id]: false }));
+    }, 1500);
   };
 
+  // Savat ichidagi buyurtma sonini immutable (xavfsiz nusxa olish) uslubida yangilash (2-muammo yechimi)
   const changeQty = (idx: number, delta: number) => {
     setCart(prev => {
-      const copy = [...prev];
-      copy[idx].qty += delta;
-      if (copy[idx].qty <= 0) {
-        copy.splice(idx, 1);
-      }
-      return copy;
+      return prev
+        .map((item, i) => {
+          if (i === idx) {
+            return { ...item, qty: item.qty + delta }; // Yangi obyekt qaytariladi
+          }
+          return item;
+        })
+        .filter(item => item.qty > 0); // Agar soni 0 yoki undan kamaysa, savatdan o'chadi
     });
   };
 
   const handleOrderSubmit = async () => {
-    if (!customerName.trim()) return;
-    if (!customerPhone.trim()) return;
+    if (!customerName.trim() || !customerPhone.trim()) return;
 
     setIsSendingOrder(true);
     setOrderError('');
@@ -232,17 +231,15 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  // Filtrlangan taomlar ro'yxati
   const filteredItems = menuItems.filter(item => {
     const matchesCat = activeCat === 'all' || item.cat === activeCat;
     const matchesSearch = getDishName(item).toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          t[item.descKey]?.toLowerCase().includes(searchQuery.toLowerCase());
+                          (t[item.descKey] && t[item.descKey].toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCat && matchesSearch;
   });
 
   return (
     <>
-      {/* HERO */}
       <div className="menu-hero" id="menuHero" data-word={t.hero_word}>
         <div className="hero-tag">{t.hero_tag}</div>
         <h1><span>{t.hero_h1a}</span> <em>{t.hero_h1b}</em></h1>
@@ -251,7 +248,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
 
       <div className="section-divider"></div>
 
-      {/* CATEGORY BAR */}
       <div className="cat-bar">
         <button className={`cat-btn ${activeCat === 'all' ? 'active' : ''}`} onClick={() => setActiveCat('all')}>
           <span>🍽️</span> <span>{t.cat_all}</span>
@@ -279,7 +275,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         </button>
       </div>
 
-      {/* SEARCH BOX */}
       <div className="search-wrap">
         <div className="search-box">
           <span className="search-icon">🔍</span>
@@ -292,20 +287,14 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         </div>
       </div>
 
-      {/* CARDS GRID */}
       <main className="menu-body">
         {['milliy', 'grill', 'shorva', 'salat', 'non', 'ichimlik', 'shirinlik'].map(cat => {
           const sectionItems = filteredItems.filter(item => item.cat === cat);
           if (sectionItems.length === 0) return null;
 
           const sectionTitleMap: { [key: string]: string } = {
-            milliy: t.sec_milliy,
-            grill: t.sec_grill,
-            shorva: t.sec_shorva,
-            salat: t.sec_salat,
-            non: t.sec_non,
-            ichimlik: t.sec_ichimlik,
-            shirinlik: t.sec_shirinlik
+            milliy: t.sec_milliy, grill: t.sec_grill, shorva: t.sec_shorva,
+            salat: t.sec_salat, non: t.sec_non, ichimlik: t.sec_ichimlik, shirinlik: t.sec_shirinlik
           };
 
           const sectionEmojiMap: { [key: string]: string } = {
@@ -342,8 +331,13 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                         <div className="card-price">
                           {item.price.toLocaleString()} <small>{t.currency}</small>
                         </div>
-                        <button className="add-btn" onClick={() => handleAddToCart(item)}>
-                          <span>＋</span> <span>{t.add_btn}</span>
+                        <button 
+                          className={`add-btn ${addedStatus[item.id] ? 'added' : ''}`} 
+                          onClick={() => handleAddToCart(item)}
+                          style={addedStatus[item.id] ? { backgroundColor: '#3A7A3A', color: '#fff' } : {}}
+                        >
+                          <span>{addedStatus[item.id] ? '✓' : '＋'}</span> 
+                          <span>{addedStatus[item.id] ? (lang === 'uz' ? "Qo'shildi" : lang === 'ru' ? "Добавлено" : "Added") : t.add_btn}</span>
                         </button>
                       </div>
                     </div>
@@ -355,7 +349,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         })}
       </main>
 
-      {/* CART FLOAT BUTTON */}
       {totalItemsCount > 0 && (
         <button id="cart-float" className="show" onClick={() => setIsCartOpen(true)}>
           🛒 <span>{t.cart_label}</span>
@@ -363,7 +356,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         </button>
       )}
 
-      {/* CART MODAL */}
       {isCartOpen && (
         <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && setIsCartOpen(false)}>
           <div className="cart-modal">
@@ -408,7 +400,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         </div>
       )}
 
-      {/* CHECKOUT ORDER MODAL */}
       {isOrderModalOpen && (
         <div className="order-overlay open" onClick={(e) => e.target === e.currentTarget && setIsOrderModalOpen(false)}>
           <div className="order-modal">

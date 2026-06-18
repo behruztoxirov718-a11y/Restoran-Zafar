@@ -1,4 +1,3 @@
-
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 /* ── LIGHT THEME ── */
@@ -214,7 +213,7 @@ h2 { font-family:'Playfair Display',serif; font-size: clamp(2rem,3.5vw,3.2rem); 
 .feature-title { font-weight:600; font-size:0.9rem; color:var(--cream); margin-bottom:4px; }
 .feature-desc { font-size:0.82rem; color:rgba(245,239,224,0.5); line-height:1.5; }
 
-/* ── MENU HIGHLIGHTS ── */
+/* ── BOSH SAHIFADAGI TAOMLAR SLIDERI ── */
 #menu { padding: 120px 60px; background: var(--section-alt); transition: background 0.35s; }
 .menu-header { text-align:center; margin-bottom:72px; }
 .menu-header .section-tag { justify-content:center; }
@@ -231,20 +230,35 @@ h2 { font-family:'Playfair Display',serif; font-size: clamp(2rem,3.5vw,3.2rem); 
   color:var(--muted); cursor:pointer; transition:all 0.3s;
 }
 .tab-btn.active { background:var(--text); color:var(--bg); }
-.menu-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; }
-.menu-card {
-  background: var(--card-bg); overflow:hidden;
-  transition: transform 0.4s, box-shadow 0.4s, background 0.35s;
-  cursor:pointer; position:relative;
+
+.menu-grid, .cards-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); 
+  gap: 32px; 
 }
-.menu-card:hover { transform:translateY(-8px); box-shadow:0 24px 60px rgba(26,18,8,0.18); }
+.menu-card {
+  background: var(--bg2); 
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform 0.4s, box-shadow 0.4s, background 0.35s;
+  cursor: pointer; position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.menu-card:hover { transform:translateY(-8px); box-shadow:0 24px 60px var(--card-shadow); }
 .menu-card-img { width:100%; height:240px; object-fit:cover; display:block; transition:transform 0.5s; filter:saturate(1.1); }
 .menu-card:hover .menu-card-img { transform:scale(1.05); }
-.menu-card-body { padding:24px; }
+
+.menu-card-body { 
+  padding: 24px; 
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
 .menu-card-tag { font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:10px; }
 .menu-card-name { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--text); margin-bottom:10px; transition:color 0.35s; }
-.menu-card-desc { font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:20px; }
-.menu-card-footer { display:flex; align-items:center; justify-content:space-between; }
+.menu-card-desc { font-size:0.85rem; color:var(--muted); line-height:1.6; margin-bottom:20px; flex-grow: 1; }
+.menu-card-footer { display:flex; align-items:center; justify-content:space-between; margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border); }
 .menu-price { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--gold); font-weight:700; }
 .menu-order-btn {
   background:var(--text); color:var(--bg); border:none; padding:9px 18px;
@@ -252,19 +266,31 @@ h2 { font-family:'Playfair Display',serif; font-size: clamp(2rem,3.5vw,3.2rem); 
   text-transform:uppercase; cursor:pointer; font-weight:500; transition:background 0.3s, color 0.3s;
 }
 .menu-order-btn:hover { background:var(--gold); color:#fff; }
-.menu-badge { position:absolute; top:16px; right:16px; background:var(--rust); color:#fff; font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; padding:5px 12px; font-weight:600; }
+.menu-badge { position:absolute; top:16px; right:16px; background:var(--rust); color:#fff; font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; padding:5px 12px; font-weight:600; z-index: 5; }
 
 /* ── REVIEWS ── */
 #reviews { padding:120px 60px; background:var(--reviews-bg); color:var(--cream); position:relative; overflow:hidden; transition: background 0.35s; }
 #reviews::before { content:'"'; position:absolute; font-family:'Playfair Display',serif; font-size:28vw; color:rgba(201,147,58,0.06); top:-80px; left:20px; line-height:1; pointer-events:none; }
 .reviews-header { text-align:center; margin-bottom:72px; }
 .reviews-header .section-tag { justify-content:center; }
-.reviews-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
-.review-card { background:rgba(255,255,255,0.05); border:1px solid rgba(201,147,58,0.15); padding:36px 32px; transition:border-color 0.3s, background 0.3s; }
+
+.reviews-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 28px; 
+}
+.review-card { 
+  background:rgba(255,255,255,0.05); 
+  border:1px solid rgba(201,147,58,0.15); 
+  padding:36px 32px; 
+  transition:border-color 0.3s, background 0.3s; 
+  display: flex;
+  flex-direction: column;
+}
 .review-card:hover { border-color:rgba(201,147,58,0.4); background:rgba(201,147,58,0.06); }
 .stars { display:flex; gap:4px; margin-bottom:20px; }
-.review-text { font-family:'Playfair Display',serif; font-size:1.05rem; line-height:1.7; color:rgba(245,239,224,0.85); font-style:italic; margin-bottom:28px; }
-.reviewer { display:flex; align-items:center; gap:14px; }
+.review-text { font-family:'Playfair Display',serif; font-size:1.05rem; line-height:1.7; color:rgba(245,239,224,0.85); font-style:italic; margin-bottom:28px; flex-grow: 1; }
+.reviewer { display:flex; align-items:center; gap:14px; margin-top: auto; }
 .reviewer-avatar { width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid var(--gold); }
 .reviewer-name { font-weight:600; font-size:0.9rem; color:var(--cream); }
 .reviewer-loc { font-size:0.78rem; color:rgba(245,239,224,0.45); margin-top:2px; }
@@ -318,7 +344,7 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 .footer-bottom { display:flex; align-items:center; justify-content:space-between; font-size:0.8rem; }
 .footer-bottom span { color:var(--gold); }
 
-/* ── FADE ANIMATION ── */
+/* ── FADE ── */
 .fade-up { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s ease; }
 .fade-up.visible { opacity:1; transform:translateY(0); }
 
@@ -374,95 +400,7 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 }
 .mobile-drawer .drawer-cta:hover { background: var(--rust); }
 
-/* ── RESERVATION MODAL ── */
-.res-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(10,7,3,0.72);
-  z-index: 400; backdrop-filter: blur(6px);
-  align-items: center; justify-content: center;
-  padding: 20px;
-}
-.res-overlay.open { display: flex; }
-.res-modal {
-  background: var(--bg);
-  width: 100%; max-width: 480px;
-  animation: slideUp 0.32s ease;
-  transition: background 0.35s;
-}
-@keyframes slideUp {
-  from { transform: translateY(36px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-.res-modal-header {
-  background: var(--about-bg);
-  padding: 26px 32px 22px; position: relative;
-}
-.res-modal-header h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem; color: #F5EFE0; margin-bottom: 5px;
-}
-.res-modal-header p { font-size: 0.8rem; color: rgba(245,239,224,0.45); }
-.res-modal-close {
-  position: absolute; top: 18px; right: 22px;
-  background: none; border: none; font-size: 1.4rem;
-  color: rgba(245,239,224,0.45); cursor: pointer;
-  line-height: 1; transition: color 0.2s;
-}
-.res-modal-close:hover { color: var(--gold); }
-.res-modal-body { padding: 26px 32px 30px; }
-.res-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-.res-modal-field { display: flex; flex-direction: column; gap: 7px; }
-.res-modal-field.full { margin-bottom: 14px; }
-.res-modal-field label {
-  font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--muted);
-}
-.res-modal-field input,
-.res-modal-field select {
-  padding: 12px 14px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-  color: var(--text); outline: none;
-  transition: border-color 0.3s, background 0.35s;
-  width: 100%;
-}
-.res-modal-field input::placeholder { color: var(--muted); opacity: 0.55; }
-.res-modal-field input:focus,
-.res-modal-field select:focus { border-color: var(--gold); }
-.res-modal-field select { appearance: none; cursor: pointer; }
-.res-error {
-  font-size: 0.78rem; color: var(--rust);
-  min-height: 18px; margin-bottom: 10px;
-}
-.res-send-btn {
-  width: 100%; padding: 15px;
-  background: var(--about-bg); color: #F5EFE0;
-  border: none; font-family: 'DM Sans', sans-serif;
-  font-size: 0.88rem; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-}
-.res-send-btn:hover:not(:disabled) { background: var(--gold); transform: translateY(-2px); }
-.res-send-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.res-success {
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 52px 32px; text-align: center;
-}
-.res-success.show { display: flex; }
-.res-success-icon { font-size: 3.2rem; margin-bottom: 16px; animation: popIn 0.5s ease; }
-@keyframes popIn { 0%{transform:scale(0)} 70%{transform:scale(1.15)} 100%{transform:scale(1)} }
-.res-success h4 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.45rem; color: var(--text);
-  margin-bottom: 10px; transition: color 0.35s;
-}
-.res-success p { font-size: 0.86rem; color: var(--muted); line-height: 1.6; }
-
-/* ── MENU PAGE HERO ── */
+/* ── DETAILED MENU HERO ── */
 .menu-hero {
   min-height: 340px;
   background: var(--hero-bg);
@@ -562,11 +500,6 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
   white-space: nowrap; transition: color 0.35s;
 }
 .section-emoji { font-size: 1.4rem; }
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 22px;
-}
 .card-img-wrap { position: relative; overflow: hidden; height: 205px; }
 .card-img {
   width: 100%; height: 100%;
@@ -646,7 +579,6 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
   transition: background 0.25s, color 0.25s;
 }
 .add-btn:hover { background: var(--gold); color: #fff; }
-.add-btn.added { background: #3A7A3A; color: #fff; }
 
 /* ── CART FLOAT ── */
 #cart-float {
@@ -920,25 +852,211 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 @keyframes zlProgress { 0% { width: 0; } 60% { width: 72%; } 100% { width: 100%; } }
 @keyframes zlDot { 0% { left: 0; } 60% { left: calc(72% - 3px); } 100% { left: calc(100% - 7px); } }
 
-/* ── RESPONSIVE ── */
-@media (max-width:900px) {
-  nav { padding:14px 18px; gap:10px; }
-  .nav-links { display:none; }
-  .nav-cta { display:none; }
-  .burger { display:flex; }
-  .mobile-drawer { display:block; }
-  .lang-btn { padding:4px 8px; font-size:0.68rem; }
-  #hero { grid-template-columns:1fr; }
-  .hero-left { padding:60px 24px; }
-  .hero-right { height:320px; }
-  .hero-badge { left:16px; }
-  #about, #reservation { grid-template-columns:1fr; padding:80px 24px; gap:48px; }
-  .about-images { height:300px; }
-  #menu, #reviews { padding:80px 24px; }
-  .menu-grid, .cards-grid { grid-template-columns:1fr; }
-  .footer-top { grid-template-columns:1fr 1fr; gap:36px; padding:24px; }
-  footer { padding:48px 24px 28px; }
-  .footer-bottom { flex-direction:column; gap:10px; text-align:center; }
+/* ── MUKAMMAL MODAL OYNA SINF USLUBLARI (Muammoingizning to'g'ri yechimi) ── */
+.res-overlay {
+  display: none; 
+  position: fixed; 
+  inset: 0;
+  background: rgba(10, 7, 3, 0.82) !important; /* modal ortidagi xiralashgan qorong'u fon */
+  z-index: 9999 !important; /* modal har qanday navigatsiya va element ustidan chiqishi uchun */
+  backdrop-filter: blur(8px) !important;
+  align-items: center; 
+  justify-content: center;
+  padding: 20px;
+}
+.res-overlay.open { 
+  display: flex !important; 
+}
+.res-modal {
+  background: var(--bg) !important;
+  width: 100%; 
+  max-width: 480px;
+  animation: resSlideUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  transition: background 0.35s;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5) !important;
+}
+
+@keyframes resSlideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.res-modal-header {
+  background: var(--about-bg) !important;
+  padding: 26px 32px 22px !important; 
+  position: relative !important;
+}
+.res-modal-header h3 {
+  font-family: 'Playfair Display', serif !important;
+  font-size: 1.55rem !important; 
+  color: #F5EFE0 !important; 
+  margin-bottom: 5px !important;
+}
+.res-modal-header p { 
+  font-size: 0.82rem !important; 
+  color: rgba(245, 239, 224, 0.45) !important; 
+}
+.res-modal-close {
+  position: absolute !important; 
+  top: 18px !important; 
+  right: 22px !important;
+  background: none !important; 
+  border: none !important; 
+  font-size: 1.5rem !important;
+  color: rgba(245, 239, 224, 0.5) !important; 
+  cursor: pointer !important;
+  line-height: 1 !important; 
+  transition: color 0.2s !important;
+}
+.res-modal-close:hover { 
+  color: var(--gold) !important; 
+}
+.res-modal-body { 
+  padding: 26px 32px 30px !important; 
+}
+.res-modal-row { 
+  display: grid !important; 
+  grid-template-columns: 1fr 1fr !important; 
+  gap: 14px !important; 
+  margin-bottom: 14px !important; 
+}
+.res-modal-field { 
+  display: flex !important; 
+  flex-direction: column !important; 
+  gap: 7px !important; 
+}
+.res-modal-field.full { 
+  margin-bottom: 14px !important; 
+}
+.res-modal-field label {
+  font-size: 0.72rem !important; 
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important; 
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  margin-bottom: 3px !important;
+}
+.res-modal-field input,
+.res-modal-field select {
+  padding: 12px 14px !important;
+  background: var(--bg2) !important;
+  border: 1px solid var(--border) !important;
+  font-family: 'DM Sans', sans-serif !important; 
+  font-size: 0.88rem !important;
+  color: var(--text) !important; 
+  outline: none !important;
+  transition: border-color 0.3s, background 0.35s !important;
+  width: 100% !important;
+}
+.res-modal-field input::placeholder { 
+  color: var(--muted) !important; 
+  opacity: 0.55 !important; 
+}
+.res-modal-field input:focus,
+.res-modal-field select:focus { 
+  border-color: var(--gold) !important; 
+}
+.res-modal-field select { 
+  appearance: none !important; 
+  cursor: pointer !important; 
+}
+.res-error {
+  font-size: 0.78rem !important; 
+  color: var(--rust) !important;
+  min-height: 18px !important; 
+  margin-bottom: 10px !important;
+}
+.res-send-btn {
+  width: 100% !important; 
+  padding: 15px !important;
+  background: var(--about-bg) !important; 
+  color: #F5EFE0 !important;
+  border: none !important; 
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.88rem !important; 
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important; 
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  transition: background 0.3s, transform 0.2s !important;
+}
+.res-send-btn:hover:not(:disabled) { 
+  background: var(--gold) !important; 
+  transform: translateY(-2px) !important; 
+}
+.res-send-btn:disabled { 
+  opacity: 0.55 !important; 
+  cursor: not-allowed !important; 
+}
+.res-success {
+  display: none; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  padding: 52px 32px; 
+  text-align: center;
+}
+.res-success.show { 
+  display: flex !important; 
+}
+.res-success-icon { 
+  font-size: 3.2rem !important; 
+  margin-bottom: 16px !important; 
+  animation: popIn 0.5s ease !important; 
+}
+.res-success h4 {
+  font-family: 'Playfair Display', serif !important;
+  font-size: 1.45rem !important; 
+  color: var(--text) !important;
+  margin-bottom: 10px !important; 
+  transition: color 0.35s !important;
+}
+.res-success p { 
+  font-size: 0.86rem !important; 
+  color: var(--muted) !important; 
+  line-height: 1.6 !important; 
+}
+
+/* ── TO'LIQ VA MUKAMMAL MOBIL MOSLASHUVCHANLIK ── */
+@media (max-width: 1024px) {
+  .menu-grid, .cards-grid, .reviews-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-grid, .cards-grid, .reviews-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 16px;
+  }
+  
+  nav { padding: 14px 18px; gap: 10px; }
+  .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .burger { display: flex; }
+  .mobile-drawer { display: block; }
+  .lang-btn { padding: 4px 8px; font-size: 0.68rem; }
+  
+  #hero { grid-template-columns: 1fr; }
+  .hero-left { padding: 60px 24px; }
+  .hero-right { height: 320px; }
+  .hero-badge { left: 16px; }
+  
+  #about, #reservation { 
+    grid-template-columns: 1fr; 
+    padding: 80px 24px; 
+    gap: 48px; 
+  }
+  .about-images { height: 300px; }
+  
+  #menu, #reviews { padding: 80px 24px; }
+  
+  .footer-top { grid-template-columns: 1fr; gap: 36px; padding: 24px; }
+  footer { padding: 48px 24px 28px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  
   .menu-hero { padding: 105px 22px 56px; }
   .cat-bar { padding: 0 14px; }
   .search-wrap { padding: 22px 18px 0; }
@@ -946,7 +1064,7 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 }
 
 @media (max-width: 520px) {
-  .res-modal-row { grid-template-columns: 1fr; }
-  .res-modal-body { padding: 22px 20px 26px; }
-  .res-modal-header { padding: 22px 20px 18px; }
+  .res-modal-row { grid-template-columns: 1fr !important; }
+  .res-modal-body { padding: 22px 20px 26px !important; }
+  .res-modal-header { padding: 22px 20px 18px !important; }
 }
