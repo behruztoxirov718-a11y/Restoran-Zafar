@@ -857,8 +857,8 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
   display: none; 
   position: fixed; 
   inset: 0;
-  background: rgba(10, 7, 3, 0.82) !important; /* modal ortidagi xiralashgan qorong'u fon */
-  z-index: 9999 !important; /* modal har qanday navigatsiya va element ustidan chiqishi uchun */
+  background: rgba(10, 7, 3, 0.82) !important;
+  z-index: 9999 !important;
   backdrop-filter: blur(8px) !important;
   align-items: center; 
   justify-content: center;
@@ -1067,4 +1067,133 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
   .res-modal-row { grid-template-columns: 1fr !important; }
   .res-modal-body { padding: 22px 20px 26px !important; }
   .res-modal-header { padding: 22px 20px 18px !important; }
+}
+
+/* ── ADMIN PANEL STYLES ── */
+.admin-login-wrap {
+  min-height: 100vh; background: #120D05;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  color: #F5EFE0; font-family: 'DM Sans', sans-serif;
+}
+.admin-login-box {
+  background: #1E1509; border: 1px solid rgba(201,147,58,0.3);
+  padding: 44px 40px; width: 100%; max-width: 420px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6); text-align: center;
+}
+.admin-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: #F5EFE0; margin-bottom: 8px; }
+.admin-logo span { color: #C9933A; font-style: italic; }
+.admin-login-box h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 4px; }
+.admin-login-box p { font-size: 0.85rem; color: #7A6E5E; margin-bottom: 28px; }
+.admin-btn-gold {
+  background: #C9933A; color: #fff; border: none; padding: 14px 28px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.3s ease; width: 100%; display: block; text-align: center;
+}
+.admin-btn-gold:hover { background: #8B3A1C; transform: translateY(-2px); }
+.login-err { color: #D4703A; font-size: 0.85rem; margin-bottom: 14px; background: rgba(212,112,58,0.1); padding: 8px; border: 1px solid rgba(212,112,58,0.3); }
+.back-site-btn { background: none; border: none; color: #C9933A; font-size: 0.85rem; margin-top: 16px; cursor: pointer; text-decoration: underline; }
+
+/* Dashboard layout */
+.admin-dashboard { min-height: 100vh; background: #120D05; color: #F5EFE0; padding-bottom: 80px; }
+.admin-header {
+  background: #1E1509; border-bottom: 1px solid rgba(201,147,58,0.2);
+  padding: 18px 48px; display: flex; justify-content: space-between; align-items: center;
+}
+.admin-header-left { display: flex; align-items: center; gap: 16px; }
+.admin-badge { background: #8B3A1C; color: #fff; font-size: 0.7rem; padding: 4px 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.logout-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #F5EFE0; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; }
+.logout-btn:hover { background: #D4703A; border-color: #D4703A; }
+
+.admin-tabs { display: flex; gap: 10px; padding: 24px 48px 0; border-bottom: 1px solid rgba(255,255,255,0.08); background: #181107; }
+.admin-tab { background: transparent; border: none; color: #7A6E5E; padding: 14px 24px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; }
+.admin-tab.active { color: #C9933A; border-bottom-color: #C9933A; background: rgba(201,147,58,0.06); }
+
+.admin-body { padding: 32px 48px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 36px; }
+.stat-card { background: #1E1509; border: 1px solid rgba(201,147,58,0.2); padding: 24px; display: flex; align-items: center; gap: 20px; }
+.stat-card.gold-card { background: linear-gradient(135deg, #1E1509 0%, #2A1E0E 100%); border-color: #C9933A; }
+.stat-icon { font-size: 2.4rem; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: #C9933A; line-height: 1.2; }
+.gold-card .stat-val { color: #F0CC90; }
+.stat-lbl { font-size: 0.8rem; color: #7A6E5E; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+.admin-table-panel, .admin-form-panel { background: #1E1509; border: 1px solid rgba(201,147,58,0.2); padding: 28px; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
+.panel-head h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #F5EFE0; }
+.panel-head span { font-size: 0.85rem; color: #C9933A; }
+
+.admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+.admin-table th { padding: 12px 16px; background: #120D05; color: #C9933A; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em; border-bottom: 1px solid rgba(201,147,58,0.3); }
+.admin-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); color: rgba(245,239,224,0.85); vertical-align: middle; }
+.admin-table tr:hover { background: rgba(255,255,255,0.02); }
+.badge-gold { background: rgba(201,147,58,0.15); border: 1px solid rgba(201,147,58,0.4); color: #F0CC90; padding: 4px 8px; font-size: 0.8rem; }
+
+.add-dish-form .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.add-dish-form .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.admin-form-panel label { display: block; font-size: 0.75rem; color: #7A6E5E; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.admin-form-panel input, .admin-select { width: 100%; padding: 12px 16px; background: #120D05; border: 1px solid rgba(201,147,58,0.3); color: #F5EFE0; outline: none; font-size: 0.9rem; }
+.admin-form-panel input:focus, .admin-select:focus { border-color: #C9933A; }
+
+.admin-dish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+.admin-dish-card { background: #120D05; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; display: flex; flex-direction: column; }
+.admin-dish-card img { width: 100%; height: 140px; object-fit: cover; }
+.dish-info { padding: 16px; flex: 1; }
+.cat-tag { font-size: 0.65rem; color: #C9933A; letter-spacing: 0.1em; font-weight: 700; }
+.dish-info h4 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin: 4px 0 8px; }
+.dish-info .price { color: #F0CC90; font-weight: 700; font-size: 0.95rem; }
+.dish-actions { display: flex; border-top: 1px solid rgba(255,255,255,0.08); background: #181107; }
+.dish-actions button { flex: 1; padding: 10px; border: none; background: transparent; font-size: 0.8rem; cursor: pointer; color: #F5EFE0; transition: background 0.2s; }
+.edit-btn:hover { background: rgba(201,147,58,0.2); color: #C9933A; }
+.del-btn:hover { background: rgba(212,112,58,0.2); color: #D4703A; }
+
+.admin-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.admin-modal-box { background: #1E1509; border: 1px solid #C9933A; padding: 32px; width: 100%; max-width: 400px; }
+.cancel-btn { background: #120D05; border: 1px solid #7A6E5E; color: #F5EFE0; padding: 14px 24px; cursor: pointer; }
+
+/* ── MOBIL QURILMALARDA LOCK TUGMASINI YASHIRISH VA ADMIN PANEL MOSLASHUVCHANLIGI ── */
+@media (max-width: 768px) {
+  /* Sayt navigatsiyasidagi qulf tugmasini mobil ekranda yashirish */
+  .lock-nav-btn {
+    display: none !important;
+  }
+  
+  /* Admin Panel Header moslashuvchanligi */
+  .admin-header {
+    padding: 14px 20px;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  .admin-header-left {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  /* Admin Panel Tablari */
+  .admin-tabs {
+    padding: 12px 20px 0;
+    flex-direction: column;
+    gap: 0;
+  }
+  .admin-tab {
+    padding: 10px 16px;
+    width: 100%;
+    text-align: center;
+    border-bottom: 2px solid transparent;
+  }
+  .admin-tab.active {
+    border-bottom-color: #C9933A;
+  }
+  
+  /* Admin Tana qismi */
+  .admin-body {
+    padding: 24px 20px;
+  }
+  
+  /* Tablitsalar */
+  .admin-table th, .admin-table td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
 }

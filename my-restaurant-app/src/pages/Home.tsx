@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { T } from '../translations';
 
 interface HomeProps {
   lang: string;
-  setPage: (page: 'home' | 'menu') => void;
+  setPage: (page: 'home' | 'menu' | 'admin') => void;
 }
 
 const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
@@ -24,7 +25,6 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
   const [isSending, setIsSending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Tab o'zgarganda animatsiya kuzatuvchisini qayta ishga tushirish (1-muammo yechimi)
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -38,11 +38,10 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
       { threshold: 0.05 }
     );
     
-    // Hozirgi tabda yuklangan barcha yangi fade-up elementlarni kuzatish
     document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
     
     return () => observer.disconnect();
-  }, [activeTab]); // activeTab o'zgarganda kuzatuvchi yangilanadi
+  }, [activeTab]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
@@ -102,6 +101,14 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
       });
       const data = await response.json();
       if (data.ok) {
+        // ── ADMIN STATISTIKA UCHUN MA'LUMOTLARNI SAQLASH ──
+        const savedRes = JSON.parse(localStorage.getItem('zafar_reservations') || '[]');
+        const newRes = {
+          id: 'res_' + Date.now(),
+          name, phone, date, time, guests, wish
+        };
+        localStorage.setItem('zafar_reservations', JSON.stringify([...savedRes, newRes]));
+
         setIsSuccess(true);
         setTimeout(() => {
           setIsModalOpen(false);

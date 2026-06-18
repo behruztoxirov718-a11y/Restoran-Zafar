@@ -11,11 +11,111 @@ interface CartItem {
   qty: number;
 }
 
+interface MenuItem {
+  id: string;
+  cat: string;
+  nameUz: string;
+  nameRu: string;
+  nameEn: string;
+  price: number;
+  img: string;
+  descKey: string;
+  descUz?: string;
+  descRu?: string;
+  descEn?: string;
+  badge?: string;
+  badgeKey?: string;
+  meta: string;
+}
+
 interface MenuProps {
   lang: string;
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
+
+const DEFAULT_MENU_ITEMS: MenuItem[] = [
+  {
+    id: 'm1', cat: 'milliy', nameUz: 'Samarqand Oshi', nameRu: 'Самаркандский Плов', nameEn: 'Samarkand Plov',
+    price: 45000, img: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&q=80',
+    descKey: 'desc_plov', badge: 'hot', badgeKey: 'badge_popular', meta: '🕐 35 min • 👤 1–2 • 🌶️'
+  },
+  {
+    id: 'm2', cat: 'milliy', nameUz: 'Buxoro Dimlama', nameRu: 'Бухарская Димлама', nameEn: 'Bukhara Dimlama',
+    price: 52000, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+    descKey: 'desc_dimlama', meta: '🕐 50 min • 👤 2'
+  },
+  {
+    id: 'm3', cat: 'milliy', nameUz: 'Toshkent Manti', nameRu: 'Ташкентские Манты', nameEn: 'Tashkent Manti',
+    price: 38000, img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&q=80',
+    descKey: 'desc_manti', badge: 'new', badgeKey: 'badge_new', meta: '🕐 40 min • 👤 1–2'
+  },
+  {
+    id: 'g1', cat: 'grill', nameUz: 'Tandir Kabob', nameRu: 'Тандырный Кабоб', nameEn: 'Tandoor Kebab',
+    price: 62000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
+    descKey: 'desc_tandir', badge: 'hot', meta: '🕐 30 min • 👤 1 • 🌶️🌶️'
+  },
+  {
+    id: 'g2', cat: 'grill', nameUz: 'Tikka Kabob', nameRu: 'Тикка Кабоб', nameEn: 'Tikka Kebab',
+    price: 55000, img: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=600&q=80',
+    descKey: 'desc_tikka', meta: '🕐 25 min • 👤 1'
+  },
+  {
+    id: 'g3', cat: 'grill', nameUz: 'Lula Kabob', nameRu: 'Люля-Кебаб', nameEn: 'Lula Kebab',
+    price: 48000, img: 'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=600&q=80',
+    descKey: 'desc_lula', badge: 'new', badgeKey: 'badge_new', meta: '🕐 20 min • 👤 1'
+  },
+  {
+    id: 's1', cat: 'shorva', nameUz: "Qo'zi Sho'rva", nameRu: 'Шурпа из Баранины', nameEn: 'Lamb Shorva',
+    price: 35000, img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=600&q=80',
+    descKey: 'desc_shorva', badge: 'hot', badgeKey: 'badge_popular', meta: '🕐 15 min • 👤 1'
+  },
+  {
+    id: 's2', cat: 'shorva', nameUz: 'Mastava', nameRu: 'Мастава', nameEn: 'Mastava Soup',
+    price: 28000, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80',
+    descKey: 'desc_mastava', meta: '🕐 15 min • 👤 1'
+  },
+  {
+    id: 'sl1', cat: 'salat', nameUz: 'Achichuk', nameRu: 'Аччичук', nameEn: 'Achichuk Salad',
+    price: 18000, img: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80',
+    descKey: 'desc_achichuk', badge: 'veg', badgeKey: 'badge_veg', meta: '🕐 5 min • 🥬'
+  },
+  {
+    id: 'sl2', cat: 'salat', nameUz: 'Toshkent Salati', nameRu: 'Ташкентский Салат', nameEn: 'Tashkent Salad',
+    price: 22000, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+    descKey: 'desc_tsalat', badge: 'veg', badgeKey: 'badge_veg', meta: '🕐 8 min • 🥬'
+  },
+  {
+    id: 'n1', cat: 'non', nameUz: 'Tandirda Non', nameRu: 'Тандырная Лепёшка', nameEn: 'Tandoor Bread',
+    price: 8000, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80',
+    descKey: 'desc_non', meta: '🔥 • Tayyor'
+  },
+  {
+    id: 'n2', cat: 'non', nameUz: "Go'shtli Somsa", nameRu: 'Самса с Мясом', nameEn: 'Meat Samsa',
+    price: 12000, img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80',
+    descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
+  },
+  {
+    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
+    price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
+    descKey: 'desc_choy', meta: '☕ • 🌿'
+  },
+  {
+    id: 'i2', cat: 'ichimlik', nameUz: 'Tabiiy Sharbat', nameRu: 'Натуральный Сок', nameEn: 'Fresh Juice',
+    price: 14000, img: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=600&q=80',
+    descKey: 'desc_sharbat', badge: 'new', badgeKey: 'badge_new', meta: '🧊 • 🍎'
+  },
+  {
+    id: 'sh1_s', cat: 'shirinlik', nameUz: 'Uy Halvasi', nameRu: 'Домашняя Халва', nameEn: 'Homemade Halva',
+    price: 16000, img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80',
+    descKey: 'desc_halva', meta: '🍬 • 🥜'
+  },
+  {
+    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Чак', nameEn: 'Chak-Chak',
+    price: 18000, img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',
+    descKey: 'desc_chakchak', badge: 'hot', meta: '🍯 • 🤎'
+  }
+];
 
 const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const t = T[lang];
@@ -33,88 +133,17 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [orderError, setOrderError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  const menuItems = [
-    {
-      id: 'm1', cat: 'milliy', nameUz: 'Samarqand Oshi', nameRu: 'Самаркандский Плов', nameEn: 'Samarkand Plov',
-      price: 45000, img: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&q=80',
-      descKey: 'desc_plov', badge: 'hot', badgeKey: 'badge_popular', meta: '🕐 35 min • 👤 1–2 • 🌶️'
-    },
-    {
-      id: 'm2', cat: 'milliy', nameUz: 'Buxoro Dimlama', nameRu: 'Бухарская Димлама', nameEn: 'Bukhara Dimlama',
-      price: 52000, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
-      descKey: 'desc_dimlama', meta: '🕐 50 min • 👤 2'
-    },
-    {
-      id: 'm3', cat: 'milliy', nameUz: 'Toshkent Manti', nameRu: 'Ташкентские Манты', nameEn: 'Tashkent Manti',
-      price: 38000, img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&q=80',
-      descKey: 'desc_manti', badge: 'new', badgeKey: 'badge_new', meta: '🕐 40 min • 👤 1–2'
-    },
-    {
-      id: 'g1', cat: 'grill', nameUz: 'Tandir Kabob', nameRu: 'Тандырный Кабоб', nameEn: 'Tandoor Kebab',
-      price: 62000, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
-      descKey: 'desc_tandir', badge: 'hot', meta: '🕐 30 min • 👤 1 • 🌶️🌶️'
-    },
-    {
-      id: 'g2', cat: 'grill', nameUz: 'Tikka Kabob', nameRu: 'Тикка Кабоб', nameEn: 'Tikka Kebab',
-      price: 55000, img: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=600&q=80',
-      descKey: 'desc_tikka', meta: '🕐 25 min • 👤 1'
-    },
-    {
-      id: 'g3', cat: 'grill', nameUz: 'Lula Kabob', nameRu: 'Люля-Кебаб', nameEn: 'Lula Kebab',
-      price: 48000, img: 'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=600&q=80',
-      descKey: 'desc_lula', badge: 'new', badgeKey: 'badge_new', meta: '🕐 20 min • 👤 1'
-    },
-    {
-      id: 's1', cat: 'shorva', nameUz: "Qo'zi Sho'rva", nameRu: 'Шурпа из Баранины', nameEn: 'Lamb Shorva',
-      price: 35000, img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=600&q=80',
-      descKey: 'desc_shorva', badge: 'hot', badgeKey: 'badge_popular', meta: '🕐 15 min • 👤 1'
-    },
-    {
-      id: 's2', cat: 'shorva', nameUz: 'Mastava', nameRu: 'Мастава', nameEn: 'Mastava Soup',
-      price: 28000, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80',
-      descKey: 'desc_mastava', meta: '🕐 15 min • 👤 1'
-    },
-    {
-      id: 'sl1', cat: 'salat', nameUz: 'Achichuk', nameRu: 'Аччичук', nameEn: 'Achichuk Salad',
-      price: 18000, img: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80',
-      descKey: 'desc_achichuk', badge: 'veg', badgeKey: 'badge_veg', meta: '🕐 5 min • 🥬'
-    },
-    {
-      id: 'sl2', cat: 'salat', nameUz: 'Toshkent Salati', nameRu: 'Ташкентский Салат', nameEn: 'Tashkent Salad',
-      price: 22000, img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
-      descKey: 'desc_tsalat', badge: 'veg', badgeKey: 'badge_veg', meta: '🕐 8 min • 🥬'
-    },
-    {
-      id: 'n1', cat: 'non', nameUz: 'Tandirda Non', nameRu: 'Тандырная Лепёшка', nameEn: 'Tandoor Bread',
-      price: 8000, img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80',
-      descKey: 'desc_non', meta: '🔥 • Tayyor'
-    },
-    {
-      id: 'n2', cat: 'non', nameUz: "Go'shtli Somsa", nameRu: 'Самса с Мясом', nameEn: 'Meat Samsa',
-      price: 12000, img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80',
-      descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
-    },
-    {
-      id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
-      price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
-      descKey: 'desc_choy', meta: '☕ • 🌿'
-    },
-    {
-      id: 'i2', cat: 'ichimlik', nameUz: 'Tabiiy Sharbat', nameRu: 'Натуральный Сок', nameEn: 'Fresh Juice',
-      price: 14000, img: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=600&q=80',
-      descKey: 'desc_sharbat', badge: 'new', badgeKey: 'badge_new', meta: '🧊 • 🍎'
-    },
-    {
-      id: 'sh1_s', cat: 'shirinlik', nameUz: 'Uy Halvasi', nameRu: 'Домашняя Халва', nameEn: 'Homemade Halva',
-      price: 16000, img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80',
-      descKey: 'desc_halva', meta: '🍬 • 🥜'
-    },
-    {
-      id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Чак', nameEn: 'Chak-Chak',
-      price: 18000, img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',
-      descKey: 'desc_chakchak', badge: 'hot', meta: '🍯 • 🤎'
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  useEffect(() => {
+    const savedMenu = localStorage.getItem('zafar_menu');
+    if (savedMenu) {
+      setMenuItems(JSON.parse(savedMenu));
+    } else {
+      localStorage.setItem('zafar_menu', JSON.stringify(DEFAULT_MENU_ITEMS));
+      setMenuItems(DEFAULT_MENU_ITEMS);
     }
-  ];
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -130,19 +159,26 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     );
     document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [activeCat, searchQuery]);
+  }, [activeCat, searchQuery, menuItems]);
 
   const toggleLike = (id: string) => {
     setLikes(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const getDishName = (item: typeof menuItems[0]) => {
+  const getDishName = (item: MenuItem) => {
     if (lang === 'ru') return item.nameRu;
     if (lang === 'en') return item.nameEn;
     return item.nameUz;
   };
 
-  const handleAddToCart = (item: typeof menuItems[0]) => {
+  // ── DINAMIK TAVSIF/OPISANIYENI TILGA MOS RAVIDA CHIQARISH ──
+  const getDishDesc = (item: MenuItem) => {
+    if (lang === 'ru') return item.descRu || item.descUz || t[item.descKey] || 'Описание отсутствует.';
+    if (lang === 'en') return item.descEn || item.descUz || t[item.descKey] || 'No description available.';
+    return item.descUz || t[item.descKey] || 'Tavsif mavjud emas.';
+  };
+
+  const handleAddToCart = (item: MenuItem) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
@@ -165,17 +201,16 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     }, 1500);
   };
 
-  // Savat ichidagi buyurtma sonini immutable (xavfsiz nusxa olish) uslubida yangilash (2-muammo yechimi)
   const changeQty = (idx: number, delta: number) => {
     setCart(prev => {
       return prev
         .map((item, i) => {
           if (i === idx) {
-            return { ...item, qty: item.qty + delta }; // Yangi obyekt qaytariladi
+            return { ...item, qty: item.qty + delta };
           }
           return item;
         })
-        .filter(item => item.qty > 0); // Agar soni 0 yoki undan kamaysa, savatdan o'chadi
+        .filter(item => item.qty > 0);
     });
   };
 
@@ -209,6 +244,17 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       });
       const data = await response.json();
       if (data.ok) {
+        const savedOrders = JSON.parse(localStorage.getItem('zafar_orders') || '[]');
+        const newOrderObj = {
+          id: 'ord_' + Date.now(),
+          customerName,
+          customerPhone,
+          items: cart,
+          total,
+          date: new Date().toLocaleString()
+        };
+        localStorage.setItem('zafar_orders', JSON.stringify([...savedOrders, newOrderObj]));
+
         setOrderSuccess(true);
         setTimeout(() => {
           setCart([]);
@@ -234,7 +280,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const filteredItems = menuItems.filter(item => {
     const matchesCat = activeCat === 'all' || item.cat === activeCat;
     const matchesSearch = getDishName(item).toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (t[item.descKey] && t[item.descKey].toLowerCase().includes(searchQuery.toLowerCase()));
+                          getDishDesc(item).toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
@@ -325,7 +371,10 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                     <div className="card-body">
                       <div className="card-cat">{sectionTitleMap[cat]}</div>
                       <div className="card-name">{getDishName(item)}</div>
-                      <p className="card-desc">{t[item.descKey]}</p>
+                      
+                      {/* TAVSIF/OPISANIYE CHIQARILADIGAN JOY */}
+                      <p className="card-desc">{getDishDesc(item)}</p>
+                      
                       <div className="card-meta">{item.meta}</div>
                       <div className="card-footer">
                         <div className="card-price">

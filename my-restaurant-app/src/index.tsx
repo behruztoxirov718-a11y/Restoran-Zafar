@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Loader from './components/Loader';
+import Admin from './pages/Admin';
 import { T } from './translations';
 
 interface CartItem {
@@ -17,7 +17,7 @@ interface CartItem {
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState<'home' | 'menu'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'menu' | 'admin'>('home');
   const [lang, setLang] = useState<'uz' | 'ru' | 'en'>('uz');
   const [isDark, setIsDark] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -25,12 +25,10 @@ const App: React.FC = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    // Loader timer
     const timer = setTimeout(() => {
       setLoading(false);
     }, 3000);
 
-    // Load theme
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
       setIsDark(true);
@@ -59,7 +57,7 @@ const App: React.FC = () => {
     localStorage.setItem('theme', nextDark ? 'dark' : 'light');
   };
 
-  const handlePageChange = (page: 'home' | 'menu') => {
+  const handlePageChange = (page: 'home' | 'menu' | 'admin') => {
     setCurrentPage(page);
     setIsDrawerOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -71,110 +69,133 @@ const App: React.FC = () => {
     <>
       {loading && <Loader />}
 
-      {/* NAVIGATION BAR */}
-      <nav id="navbar">
-        <span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('home')} className="nav-logo">
-          Zafar <span>Dasturxon</span>
-        </span>
-        <ul className="nav-links">
-          <li>
-            <a 
-              href="#about" 
-              className={currentPage === 'home' ? 'active' : ''} 
-              onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+      {/* NAVIGATION BAR - FAQAT ADMIN SAHIFASIDA BO'LMAGANDA KO'RINADI */}
+      {currentPage !== 'admin' && (
+        <nav id="navbar">
+          <span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('home')} className="nav-logo">
+            Zafar <span>Dasturxon</span>
+          </span>
+          <ul className="nav-links">
+            <li>
+              <a 
+                href="#about" 
+                className={currentPage === 'home' ? 'active' : ''} 
+                onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              >
+                {t.nav_about}
+              </a>
+            </li>
+            <li>
+              <span 
+                style={{ cursor: 'pointer' }} 
+                className={currentPage === 'menu' ? 'active' : ''} 
+                onClick={() => handlePageChange('menu')}
+              >
+                {t.nav_menu}
+              </span>
+            </li>
+            <li>
+              <a 
+                href="#reviews" 
+                onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              >
+                {t.nav_reviews}
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#reservation" 
+                onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              >
+                {t.nav_contact}
+              </a>
+            </li>
+          </ul>
+          <div className="nav-controls">
+            <button className={`burger ${isDrawerOpen ? 'open' : ''}`} onClick={() => setIsDrawerOpen(!isDrawerOpen)}>
+              <span></span><span></span><span></span>
+            </button>
+            <div className="lang-switcher">
+              <button className={`lang-btn ${lang === 'uz' ? 'active' : ''}`} onClick={() => setLang('uz')}>UZ</button>
+              <button className={`lang-btn ${lang === 'ru' ? 'active' : ''}`} onClick={() => setLang('ru')}>RU</button>
+              <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
+            </div>
+            <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
+            
+            {/* ADMIN PANELGA KIRISH TUGMASI (Katta ekranlar uchun, lock-nav-btn klassi bilan) */}
+            <button 
+              className="theme-toggle lock-nav-btn" 
+              title="Admin Panel" 
+              onClick={() => handlePageChange('admin')}
+              style={{ fontSize: '1.1rem', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)' }}
             >
-              {t.nav_about}
-            </a>
-          </li>
-          <li>
+              🔒
+            </button>
+
             <span 
-              style={{ cursor: 'pointer' }} 
-              className={currentPage === 'menu' ? 'active' : ''} 
-              onClick={() => handlePageChange('menu')}
+              style={{ cursor: 'pointer' }}
+              className="nav-cta" 
+              onClick={() => { handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
             >
-              {t.nav_menu}
+              {t.nav_book}
             </span>
-          </li>
-          <li>
-            <a 
-              href="#reviews" 
-              onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-            >
-              {t.nav_reviews}
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#reservation" 
-              onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-            >
-              {t.nav_contact}
-            </a>
-          </li>
-        </ul>
-        <div className="nav-controls">
-          <button className={`burger ${isDrawerOpen ? 'open' : ''}`} onClick={() => setIsDrawerOpen(!isDrawerOpen)}>
-            <span></span><span></span><span></span>
-          </button>
-          <div className="lang-switcher">
-            <button className={`lang-btn ${lang === 'uz' ? 'active' : ''}`} onClick={() => setLang('uz')}>UZ</button>
-            <button className={`lang-btn ${lang === 'ru' ? 'active' : ''}`} onClick={() => setLang('ru')}>RU</button>
-            <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
           </div>
-          <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
+        </nav>
+      )}
+
+      {/* MOBILE DRAWER - FAQAT ADMIN SAHIFASIDA BO'LMAGANDA KO'RINADI */}
+      {currentPage !== 'admin' && (
+        <div className={`mobile-drawer ${isDrawerOpen ? 'open' : ''}`}>
+          <ul>
+            <li>
+              <a 
+                href="#about" 
+                onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              >
+                {t.nav_about}
+              </a>
+            </li>
+            <li><span style={{ display: 'block', padding: '15px 28px', cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.nav_menu}</span></li>
+            <li>
+              <a 
+                href="#reviews" 
+                onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              >
+                {t.nav_reviews}
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#reservation" 
+                onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              >
+                {t.nav_contact}
+              </a>
+            </li>
+            {/* MOBIL QURILMALARDA ADMIN PANELGA KIRISH SHU YERDAN */}
+            <li>
+              <span style={{ display: 'block', padding: '15px 28px', cursor: 'pointer', color: 'var(--gold)' }} onClick={() => handlePageChange('admin')}>
+                🔒 Admin Panel
+              </span>
+            </li>
+          </ul>
           <span 
             style={{ cursor: 'pointer' }}
-            className="nav-cta" 
+            className="drawer-cta" 
             onClick={() => { handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
           >
             {t.nav_book}
           </span>
         </div>
-      </nav>
-
-      {/* MOBILE DRAWER */}
-      <div className={`mobile-drawer ${isDrawerOpen ? 'open' : ''}`}>
-        <ul>
-          <li>
-            <a 
-              href="#about" 
-              onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-            >
-              {t.nav_about}
-            </a>
-          </li>
-          <li><span style={{ display: 'block', padding: '15px 28px', cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.nav_menu}</span></li>
-          <li>
-            <a 
-              href="#reviews" 
-              onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-            >
-              {t.nav_reviews}
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#reservation" 
-              onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-            >
-              {t.nav_contact}
-            </a>
-          </li>
-        </ul>
-        <span 
-          style={{ cursor: 'pointer' }}
-          className="drawer-cta" 
-          onClick={() => { handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-        >
-          {t.nav_book}
-        </span>
-      </div>
+      )}
 
       {/* CONTENT PAGES ROUTER */}
       {currentPage === 'home' ? (
         <Home lang={lang} setPage={handlePageChange} />
-      ) : (
+      ) : currentPage === 'menu' ? (
         <Menu lang={lang} cart={cart} setCart={setCart} />
+      ) : (
+        <Admin onGoHome={() => handlePageChange('home')} />
       )}
 
       {/* FOOTER */}
