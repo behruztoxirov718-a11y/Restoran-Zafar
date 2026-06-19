@@ -389,9 +389,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
               <div className="admin-table-panel">
                 <div className="panel-head">
                   <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ShoppingBag size={20} strokeWidth={1.5} color="var(--gold)" /> So'nggi Buyurtmalar
+                    <ShoppingBag size={20} strokeWidth={1.5} color="var(--gold)" /> So'nggi Buyurtmalar (Oxirgi 25 tasi)
                   </h3>
-                  <span>{orders.length} ta buyurtma</span>
+                  <span>Umumiy: {orders.length} ta</span>
                 </div>
                 {orders.length === 0 ? (
                   <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi buyurtmalar yo'q.</p>
@@ -408,7 +408,8 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {orders.slice().reverse().map(ord => (
+                        {/* ── CHIKLOV: FAQAT OXIRGI 25 TA BUYURTMA CHIQARILADI ── */}
+                        {orders.slice().reverse().slice(0, 25).map(ord => (
                           <tr key={ord.id}>
                             <td><b>{ord.customerName}</b></td>
                             <td>{ord.customerPhone}</td>
@@ -430,9 +431,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
               <div className="admin-table-panel" style={{ marginTop: '32px' }}>
                 <div className="panel-head">
                   <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Calendar size={20} strokeWidth={1.5} color="var(--gold)" /> Stol Band Qilish Arizalari
+                    <Calendar size={20} strokeWidth={1.5} color="var(--gold)" /> Stol Band Qilish Arizalari (Oxirgi 25 tasi)
                   </h3>
-                  <span>{reservations.length} ta ariza</span>
+                  <span>Umumiy: {reservations.length} ta</span>
                 </div>
                 {reservations.length === 0 ? (
                   <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha stol band qilish arizalari yo'q.</p>
@@ -449,7 +450,8 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {reservations.slice().reverse().map(res => (
+                        {/* ── CHIKLOV: FAQAT OXIRGI 25 TA ARIZA CHIQARILADI ── */}
+                        {reservations.slice().reverse().slice(0, 25).map(res => (
                           <tr key={res.id}>
                             <td><b>{res.name}</b></td>
                             <td>{res.phone}</td>

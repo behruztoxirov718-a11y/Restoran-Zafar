@@ -852,7 +852,7 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 @keyframes zlProgress { 0% { width: 0; } 60% { width: 72%; } 100% { width: 100%; } }
 @keyframes zlDot { 0% { left: 0; } 60% { left: calc(72% - 3px); } 100% { left: calc(100% - 7px); } }
 
-/* ── MUKAMMAL MODAL OYNA SINF USLUBLARI (Muammoingizning to'g'ri yechimi) ── */
+/* ── MUKAMMAL MODAL OYNA SINF USLUBLARI ── */
 .res-overlay {
   display: none; 
   position: fixed; 
@@ -939,15 +939,15 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 }
 .res-modal-field input,
 .res-modal-field select {
-  padding: 12px 14px !important;
-  background: var(--bg2) !important;
-  border: 1px solid var(--border) !important;
-  font-family: 'DM Sans', sans-serif !important; 
-  font-size: 0.88rem !important;
-  color: var(--text) !important; 
-  outline: none !important;
-  transition: border-color 0.3s, background 0.35s !important;
-  width: 100% !important;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s, background 0.35s;
+  width: 100%;
 }
 .res-modal-field input::placeholder { 
   color: var(--muted) !important; 
@@ -1058,7 +1058,13 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
   .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
   
   .menu-hero { padding: 105px 22px 56px; }
-  .cat-bar { padding: 0 14px; }
+  
+  /* ── CAT BAR GORIZONTAL SKROLL FADED SOYA EFFEKTI ── */
+  .cat-bar { 
+    padding: 0 14px; 
+    mask-image: linear-gradient(to right, transparent, white 30px, white calc(100% - 30px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, white 30px, white calc(100% - 30px), transparent);
+  }
   .search-wrap { padding: 22px 18px 0; }
   .search-box { width: 100%; }
 }
@@ -1106,7 +1112,7 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 .logout-btn:hover { background: #D4703A; border-color: #D4703A; }
 
 .admin-tabs { display: flex; gap: 10px; padding: 24px 48px 0; border-bottom: 1px solid rgba(255,255,255,0.08); background: #181107; }
-.admin-tab { background: transparent; border: none; color: #7A6E5E; padding: 14px 24px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; }
+.admin-tab { background: transparent; border: none; color: #7A6E5E; padding: 16px 24px; cursor: pointer; font-size: 0.95rem; font-weight: 600; border-bottom: 2px solid transparent; transition: all 0.3s; }
 .admin-tab.active { color: #C9933A; border-bottom-color: #C9933A; background: rgba(201,147,58,0.06); }
 
 .admin-body { padding: 32px 48px; }
@@ -1147,18 +1153,17 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
 .edit-btn:hover { background: rgba(201,147,58,0.2); color: #C9933A; }
 .del-btn:hover { background: rgba(212,112,58,0.2); color: #D4703A; }
 
-.admin-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.admin-modal-box { background: #1E1509; border: 1px solid #C9933A; padding: 32px; width: 100%; max-width: 400px; }
-.cancel-btn { background: #120D05; border: 1px solid #7A6E5E; color: #F5EFE0; padding: 14px 24px; cursor: pointer; }
+.admin-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.admin-modal-box { background: #FFFBF3; width: 100%; max-width: 500px; padding: 32px; border: 1px solid rgba(201,147,58,0.2); animation: scaleUp 0.3s ease-out; position: relative; }
+[data-theme="dark"] .admin-modal-box { background: #120D05; }
+.cancel-btn { background: #1A1208; color: #F5EFE0; border: none; padding: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 500; font-family: 'DM Sans', sans-serif; }
+[data-theme="dark"] .cancel-btn { background: #FFFBF3; color: #120D05; }
 
 /* ── MOBIL QURILMALARDA LOCK TUGMASINI YASHIRISH VA ADMIN PANEL MOSLASHUVCHANLIGI ── */
 @media (max-width: 768px) {
-  /* Sayt navigatsiyasidagi qulf tugmasini mobil ekranda yashirish */
   .lock-nav-btn {
     display: none !important;
   }
-  
-  /* Admin Panel Header moslashuvchanligi */
   .admin-header {
     padding: 14px 20px;
     flex-direction: column;
@@ -1169,8 +1174,6 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
     flex-direction: column;
     gap: 6px;
   }
-  
-  /* Admin Panel Tablari */
   .admin-tabs {
     padding: 12px 20px 0;
     flex-direction: column;
@@ -1185,15 +1188,21 @@ footer { background:var(--footer-bg); color:rgba(245,239,224,0.6); padding:64px 
   .admin-tab.active {
     border-bottom-color: #C9933A;
   }
-  
-  /* Admin Tana qismi */
   .admin-body {
     padding: 24px 20px;
   }
-  
-  /* Tablitsalar */
   .admin-table th, .admin-table td {
     padding: 10px 8px;
     font-size: 0.8rem;
   }
+}
+
+/* ── SKELETON LOADER PULSING ANIMATION ── */
+@keyframes pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+.skeleton-card-loading {
+  animation: pulse 1.6s infinite ease-in-out;
 }

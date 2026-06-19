@@ -116,7 +116,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
   },
   {
-    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
+    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Choy', nameEn: 'Green Tea',
     price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
     descKey: 'desc_choy', meta: '☕ • 🌿'
   },
@@ -131,7 +131,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_halva', meta: '🍬 • 🥜'
   },
   {
-    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Chak', nameEn: 'Chak-Chak',
+    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Чак', nameEn: 'Chak-Chak',
     price: 18000, img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',
     descKey: 'desc_chakchak', badge: 'hot', meta: '🍯 • 🤎'
   }
@@ -154,9 +154,11 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // ── SKELETON LOADER HOLATI ──
 
   useEffect(() => {
     const fetchMenu = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`${DB_URL}/menu.json`);
         const data = await response.json();
@@ -178,6 +180,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       } catch (err) {
         console.error("Menyuni yuklashda xatolik:", err);
         setMenuItems(DEFAULT_MENU_ITEMS);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchMenu();
@@ -197,7 +201,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     );
     document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [activeCat, searchQuery, menuItems]);
+  }, [activeCat, searchQuery, menuItems, isLoading]);
 
   const toggleLike = (id: string) => {
     setLikes(prev => ({ ...prev, [id]: !prev[id] }));
@@ -324,6 +328,23 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     return matchesCat && matchesSearch;
   });
 
+  // ── SKELETON CARD COMPONENTI (Yuklanayotganda ko'rsatiladi) ──
+  const SkeletonCard = () => (
+    <div className="menu-card skeleton-card-loading">
+      <div className="card-img-wrap" style={{ background: 'rgba(255,255,255,0.06)', height: '205px' }} />
+      <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ height: '12px', width: '35%', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }} />
+        <div style={{ height: '22px', width: '75%', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }} />
+        <div style={{ height: '14px', width: '90%', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }} />
+        <div style={{ height: '14px', width: '50%', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }} />
+        <div className="card-footer" style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '15px' }}>
+          <div style={{ height: '24px', width: '40%', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }} />
+          <div style={{ height: '36px', width: '35%', background: 'rgba(255,255,255,0.06)', borderRadius: '2px' }} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div className="menu-hero" id="menuHero" data-word={t.hero_word}>
@@ -374,73 +395,91 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       </div>
 
       <main className="menu-body">
-        {['milliy', 'grill', 'shorva', 'salat', 'non', 'ichimlik', 'shirinlik'].map(cat => {
-          const sectionItems = filteredItems.filter(item => item.cat === cat);
-          if (sectionItems.length === 0) return null;
+        {/* ── LOADER HOLATIDA SKELETONLAR CHIQARISH ── */}
+        {isLoading ? (
+          <section className="menu-section fade-up visible">
+            <div className="section-header">
+              <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}><Utensils size={20} strokeWidth={1.5} /></span>
+              <h2 className="section-title">Yuklanmoqda...</h2>
+              <div className="section-header-line"></div>
+            </div>
+            <div className="cards-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          </section>
+        ) : (
+          ['milliy', 'grill', 'shorva', 'salat', 'non', 'ichimlik', 'shirinlik'].map(cat => {
+            const sectionItems = filteredItems.filter(item => item.cat === cat);
+            if (sectionItems.length === 0) return null;
 
-          const sectionTitleMap: { [key: string]: string } = {
-            milliy: t.sec_milliy, grill: t.sec_grill, shorva: t.sec_shorva,
-            salat: t.sec_salat, non: t.sec_non, ichimlik: t.sec_ichimlik, shirinlik: t.sec_shirinlik
-          };
+            const sectionTitleMap: { [key: string]: string } = {
+              milliy: t.sec_milliy, grill: t.sec_grill, shorva: t.sec_shorva,
+              salat: t.sec_salat, non: t.sec_non, ichimlik: t.sec_ichimlik, shirinlik: t.sec_shirinlik
+            };
 
-          const sectionEmojiMap: { [key: string]: React.ReactNode } = {
-            milliy: <ChefHat size={20} strokeWidth={1.5} />, 
-            grill: <Flame size={20} strokeWidth={1.5} />, 
-            shorva: <Soup size={20} strokeWidth={1.5} />, 
-            salat: <Salad size={20} strokeWidth={1.5} />, 
-            non: <Croissant size={20} strokeWidth={1.5} />, 
-            ichimlik: <Coffee size={20} strokeWidth={1.5} />, 
-            shirinlik: <Cake size={20} strokeWidth={1.5} />
-          };
+            const sectionEmojiMap: { [key: string]: React.ReactNode } = {
+              milliy: <ChefHat size={20} strokeWidth={1.5} />, 
+              grill: <Flame size={20} strokeWidth={1.5} />, 
+              shorva: <Soup size={20} strokeWidth={1.5} />, 
+              salat: <Salad size={20} strokeWidth={1.5} />, 
+              non: <Croissant size={20} strokeWidth={1.5} />, 
+              ichimlik: <Coffee size={20} strokeWidth={1.5} />, 
+              shirinlik: <Cake size={20} strokeWidth={1.5} />
+            };
 
-          return (
-            <section key={cat} className="menu-section fade-up">
-              <div className="section-header">
-                <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}>{sectionEmojiMap[cat]}</span>
-                <h2 className="section-title">{sectionTitleMap[cat]}</h2>
-                <div className="section-header-line"></div>
-              </div>
-              <div className="cards-grid">
-                {sectionItems.map(item => (
-                  <div key={item.id} className="menu-card">
-                    <div className="card-img-wrap">
-                      {item.badge && (
-                        <span className={`card-badge ${item.badge === 'veg' ? 'badge-veg' : item.badge === 'new' ? 'badge-new' : 'badge-hot'}`}>
-                          {item.badgeKey ? t[item.badgeKey] : item.badge.toUpperCase()}
-                        </span>
-                      )}
-                      <button className={`card-like ${likes[item.id] ? 'liked' : ''}`} onClick={() => toggleLike(item.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Heart size={18} strokeWidth={1.5} fill={likes[item.id] ? "var(--rust)" : "none"} color={likes[item.id] ? "var(--rust)" : "var(--muted)"} />
-                      </button>
-                      <img className="card-img" src={item.img} alt={getDishName(item)} />
-                    </div>
-                    <div className="card-body">
-                      <div className="card-cat">{sectionTitleMap[cat]}</div>
-                      <div className="card-name">{getDishName(item)}</div>
-                      
-                      <p className="card-desc">{getDishDesc(item)}</p>
-                      
-                      <div className="card-meta">{item.meta}</div>
-                      <div className="card-footer">
-                        <div className="card-price">
-                          {item.price.toLocaleString()} <small>{t.currency}</small>
-                        </div>
-                        <button 
-                          className={`add-btn ${addedStatus[item.id] ? 'added' : ''}`} 
-                          onClick={() => handleAddToCart(item)}
-                          style={addedStatus[item.id] ? { backgroundColor: '#3A7A3A', color: '#fff' } : {}}
-                        >
-                          <span style={{ display: 'inline-flex', alignItems: 'center' }}>{addedStatus[item.id] ? <Check size={16} strokeWidth={2} /> : <Plus size={16} strokeWidth={2} />}</span> 
-                          <span>{addedStatus[item.id] ? (lang === 'uz' ? "Qo'shildi" : lang === 'ru' ? "Добавлено" : "Added") : t.add_btn}</span>
+            return (
+              <section key={cat} className="menu-section fade-up">
+                <div className="section-header">
+                  <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}>{sectionEmojiMap[cat]}</span>
+                  <h2 className="section-title">{sectionTitleMap[cat]}</h2>
+                  <div className="section-header-line"></div>
+                </div>
+                <div className="cards-grid">
+                  {sectionItems.map(item => (
+                    <div key={item.id} className="menu-card">
+                      <div className="card-img-wrap">
+                        {item.badge && (
+                          <span className={`card-badge ${item.badge === 'veg' ? 'badge-veg' : item.badge === 'new' ? 'badge-new' : 'badge-hot'}`}>
+                            {item.badgeKey ? t[item.badgeKey] : item.badge.toUpperCase()}
+                          </span>
+                        )}
+                        <button className={`card-like ${likes[item.id] ? 'liked' : ''}`} onClick={() => toggleLike(item.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Heart size={18} strokeWidth={1.5} fill={likes[item.id] ? "var(--rust)" : "none"} color={likes[item.id] ? "var(--rust)" : "var(--muted)"} />
                         </button>
+                        <img className="card-img" src={item.img} alt={getDishName(item)} />
+                      </div>
+                      <div className="card-body">
+                        <div className="card-cat">{sectionTitleMap[cat]}</div>
+                        <div className="card-name">{getDishName(item)}</div>
+                        
+                        <p className="card-desc">{getDishDesc(item)}</p>
+                        
+                        <div className="card-meta">{item.meta}</div>
+                        <div className="card-footer">
+                          <div className="card-price">
+                            {item.price.toLocaleString()} <small>{t.currency}</small>
+                          </div>
+                          
+                          {/* ── PREMIUM OLTIN-ANIMATSION ALOQA TUGMASI ── */}
+                          <button 
+                            className={`add-btn ${addedStatus[item.id] ? 'added' : ''}`} 
+                            onClick={() => handleAddToCart(item)}
+                            style={addedStatus[item.id] ? { backgroundColor: 'var(--gold)', color: '#120D05', borderColor: 'var(--gold)', transform: 'scale(1.04)', transition: 'all 0.25s ease' } : {}}
+                          >
+                            <span style={{ display: 'inline-flex', alignItems: 'center' }}>{addedStatus[item.id] ? <Check size={16} strokeWidth={2} /> : <Plus size={16} strokeWidth={2} />}</span> 
+                            <span>{addedStatus[item.id] ? (lang === 'uz' ? "Qo'shildi" : lang === 'ru' ? "Добавлено" : "Added") : t.add_btn}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
+                  ))}
+                </div>
+              </section>
+            );
+          })
+        )}
       </main>
 
       {totalItemsCount > 0 && (
@@ -550,7 +589,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
               <div className="order-success show">
                 <div className="order-success-icon" style={{ color: '#3A7A3A', marginBottom: '18px' }}><CheckCircle2 size={56} strokeWidth={1.5} /></div>
                 <h4>{lang === 'uz' ? 'Buyurtma Qabul Qilindi!' : 'Заказ Принят!'}</h4>
-                <p>{lang === 'uz' ? 'Operatorimiz tez orada siz bilan bog\'lanadi.' : 'Наш operator скоро свяжется с вами.'}</p>
+                <p>{lang === 'uz' ? 'Operatorimiz tez orada siz bilan bog\'lanadi.' : 'Наш оператор скоро свяжется с вами.'}</p>
               </div>
             )}
           </div>
