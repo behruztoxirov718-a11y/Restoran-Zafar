@@ -222,8 +222,8 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 450; // Kenglik chegarasi
-          const MAX_HEIGHT = 300; // Balandlik chegarasi
+          const MAX_WIDTH = 450; 
+          const MAX_HEIGHT = 300; 
           let width = img.width;
           let height = img.height;
 
@@ -244,7 +244,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // Rasmni juda engil JPEG formatga siqish (Sifat: 0.65)
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
           resolve(compressedBase64);
         };
@@ -254,7 +253,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     });
   };
 
-  // Yangi taom uchun rasm yuklashni boshqarish
+  // Yangi taom uchun rasm yuklashni boshqarish [1]
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -266,7 +265,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     }
   };
 
-  // Tahrirlanayotgan taom uchun rasm yuklashni boshqarish
+  // Tahrirlanayotgan taom uchun rasm yuklashni boshqarish [1]
   const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editingDish) return;
@@ -537,9 +536,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         {activeTab === 'menuEdit' && (
           <div className="menu-edit-content">
             <div className="admin-form-panel">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <PlusCircle size={20} strokeWidth={1.5} color="var(--gold)" /> Yangi Taom Qo'shish
-              </h3>
+              <h3>＋ Yangi Taom Qo'shish</h3>
               <form onSubmit={handleAddDish} className="add-dish-form">
                 <div className="form-grid-3">
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -565,7 +562,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 </div>
                 <div className="form-grid-2" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                   
-                  {/* ── 📸 YANGILANGAN RASM YUKLASH INPUTI (KAMERA VA GALEREYA) ── */}
+                  {/* ── 📸 YANGILANGAN RASM YUKLASH INPUTI ── */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label>Taom Rasmi (URL yoki Kamera/Fayl)</label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -599,10 +596,28 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         />
                       </label>
                     </div>
+                    
+                    {/* ── YANGI: RASMNI KO'RISH VA UNI O'CHIRISH TUGMASI ── */}
                     {newDish.img && (
-                      <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <img src={newDish.img} alt="Rasm ko'rinishi" style={{ width: '80px', height: '55px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
-                        <span style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Tayyor</span>
+                        <button 
+                          type="button" 
+                          onClick={() => setNewDish(prev => ({ ...prev, img: '' }))}
+                          style={{
+                            background: 'rgba(212,112,58,0.15)',
+                            border: '1px solid rgba(212,112,58,0.3)',
+                            color: '#D4703A',
+                            padding: '6px 12px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Trash2 size={12} /> <span>Rasmni o'chirish</span>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -730,9 +745,28 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                     />
                   </label>
                 </div>
+                
+                {/* ── YANGI: TAHRIRLASHDA RASMNI KO'RISH VA UNI O'CHIRISH TUGMASI ── */}
                 {editingDish.img && (
-                  <div style={{ marginTop: '6px' }}>
+                  <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <img src={editingDish.img} alt="Rasm ko'rinishi" style={{ width: '60px', height: '45px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
+                    <button 
+                      type="button" 
+                      onClick={() => setEditingDish({ ...editingDish, img: '' })}
+                      style={{
+                        background: 'rgba(212,112,58,0.15)',
+                        border: '1px solid rgba(212,112,58,0.3)',
+                        color: '#D4703A',
+                        padding: '4px 8px',
+                        fontSize: '0.7rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Trash2 size={12} /> <span>O'chirish</span>
+                    </button>
                   </div>
                 )}
               </div>
