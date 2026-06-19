@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- To'q hashamatli fon doirasi (Sayt footer va qorong'u mavzusi bilan bir xil) -->
+  <circle cx="256" cy="256" r="245" fill="#120D05" stroke="#C9933A" stroke-width="4" />
+  
+  <!-- Ichki nozik oltin chiziqlar -->
+  <circle cx="256" cy="256" r="225" fill="none" stroke="#C9933A" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.8" />
+  
+  <!-- Milliy "Girih" geometrik naqsh yulduzlari (orqa fonda muloyim ko'rinadi) -->
+  <g stroke="#C9933A" stroke-width="1" fill="none" opacity="0.2">
+    <rect x="126" y="126" width="260" height="260" transform="rotate(0 256 256)" />
+    <rect x="126" y="126" width="260" height="260" transform="rotate(45 256 256)" />
+  </g>
+  
+  <!-- O'rtada nafis va hashamatli "Z" monograms (Zafar so'zidan olingan) -->
+  <g fill="#C9933A">
+    <path d="M160 170 C160 155, 175 145, 195 145 H320 C340 145, 350 155, 350 170 C350 185, 335 195, 315 195 H230 L325 320 C338 338, 345 352, 345 365 C345 380, 330 390, 310 390 H185 C165 390, 155 380, 155 365 C155 350, 170 340, 185 340 H280 L185 215 C170 195, 160 182, 160 170 Z" />
+    
+    <!-- Milliy barg va olov ramzlari (oltin nuqtalar) -->
+    <path d="M256 75 C246 90, 246 100, 256 105 C266 100, 266 90, 256 75 Z" />
+    <path d="M256 437 C246 422, 246 412, 256 407 C266 412, 266 422, 256 437 Z" />
+    <path d="M75 256 C90 246, 100 246, 105 256 C100 266, 90 266, 75 256 Z" />
+    <path d="M437 256 C422 246, 412 246, 407 256 C412 266, 422 266, 437 256 Z" />
+  </g>
+  
+  <!-- Sayt nomi nozik aylanma matn shaklida pastki qismida -->
+  <path id="textArc" d="M 115,370 A 165,170 0 0,0 397,370" fill="none" stroke="none" />
+  <text fill="#C9933A" font-family="'Playfair Display', serif" font-size="16" font-weight="bold" letter-spacing="4" word-spacing="6">
+    <textPath href="#textArc" startOffset="50%" text-anchor="middle">
+      ZAFAR DASTURXON
+    </textPath>
+  </text>
+</svg>
