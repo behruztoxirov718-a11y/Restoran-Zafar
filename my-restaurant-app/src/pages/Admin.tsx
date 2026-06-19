@@ -12,6 +12,7 @@ import {
   LogOut 
 } from 'lucide-react';
 
+// ⚠️ FIREBASE DATABASE URL (oxirida / belgisi bo'lmasin!)
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
 interface CartItem {
@@ -142,7 +143,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_halva', meta: '🍬 • 🥜'
   },
   {
-    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Чак', nameEn: 'Chak-Chak',
+    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Chak', nameEn: 'Chak-Chak',
     price: 18000, img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',
     descKey: 'desc_chakchak', badge: 'hot', meta: '🍯 • 🤎'
   }
@@ -210,6 +211,72 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
 
     fetchAllData();
   }, []);
+
+  // ── 📸 RASMNI SIFATINI BUZMASDAN AVTOMATIK SIQISH KODI (Base64) ──
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 450; // Kenglik chegarasi
+          const MAX_HEIGHT = 300; // Balandlik chegarasi
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Rasmni juda engil JPEG formatga siqish (Sifat: 0.65)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+          resolve(compressedBase64);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  // Yangi taom uchun rasm yuklashni boshqarish
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const base64 = await compressImage(file);
+      setNewDish(prev => ({ ...prev, img: base64 }));
+    } catch (err) {
+      console.error("Rasm yuklashda xatolik:", err);
+    }
+  };
+
+  // Tahrirlanayotgan taom uchun rasm yuklashni boshqarish
+  const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingDish) return;
+    try {
+      const base64 = await compressImage(file);
+      setEditingDish({ ...editingDish, img: base64 });
+    } catch (err) {
+      console.error("Rasm yuklashda xatolik:", err);
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -408,7 +475,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {/* ── CHIKLOV: FAQAT OXIRGI 25 TA BUYURTMA CHIQARILADI ── */}
                         {orders.slice().reverse().slice(0, 25).map(ord => (
                           <tr key={ord.id}>
                             <td><b>{ord.customerName}</b></td>
@@ -450,7 +516,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {/* ── CHIKLOV: FAQAT OXIRGI 25 TA ARIZA CHIQARILADI ── */}
                         {reservations.slice().reverse().slice(0, 25).map(res => (
                           <tr key={res.id}>
                             <td><b>{res.name}</b></td>
@@ -499,10 +564,49 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   </div>
                 </div>
                 <div className="form-grid-2" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  
+                  {/* ── 📸 YANGILANGAN RASM YUKLASH INPUTI (KAMERA VA GALEREYA) ── */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Rasm URL manzili</label>
-                    <input type="text" placeholder="https://images.unsplash.com/photo-..." value={newDish.img} onChange={e => setNewDish({...newDish, img: e.target.value})} />
+                    <label>Taom Rasmi (URL yoki Kamera/Fayl)</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Rasm havolasini kiriting yoki yuklang..." 
+                        value={newDish.img} 
+                        onChange={e => setNewDish({...newDish, img: e.target.value})} 
+                        style={{ flex: 1 }}
+                      />
+                      <label style={{ 
+                        background: 'var(--gold)', 
+                        color: '#120D05', 
+                        padding: '12px 16px', 
+                        cursor: 'pointer', 
+                        fontSize: '0.85rem', 
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        margin: 0,
+                        height: '45px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        📷 <span style={{ textTransform: 'uppercase', fontSize: '0.72rem' }}>Rasm olish</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageUpload} 
+                          style={{ display: 'none' }} 
+                        />
+                      </label>
+                    </div>
+                    {newDish.img && (
+                      <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <img src={newDish.img} alt="Rasm ko'rinishi" style={{ width: '80px', height: '55px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
+                        <span style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Tayyor</span>
+                      </div>
+                    )}
                   </div>
+
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label>Qisqa ta'rif / Meta</label>
                     <input type="text" placeholder="🔥 35 min • 👤 1–2" value={newDish.meta} onChange={e => setNewDish({...newDish, meta: e.target.value})} />
@@ -592,9 +696,45 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Yangi narxi (so'm)</label>
                 <input style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} type="number" value={editingDish.price} onChange={e => setEditingDish({...editingDish, price: Number(e.target.value)})} />
               </div>
+
+              {/* ── 📸 TAHRIRLASH OYNASIDAGI RASM YUKLASH INPUTI ── */}
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Rasm URL</label>
-                <input style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} type="text" value={editingDish.img} onChange={e => setEditingDish({...editingDish, img: e.target.value})} />
+                <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Rasm URL yoki Yuklash</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', flex: 1 }} 
+                    type="text" 
+                    value={editingDish.img} 
+                    onChange={e => setEditingDish({...editingDish, img: e.target.value})} 
+                  />
+                  <label style={{ 
+                    background: 'var(--gold)', 
+                    color: '#120D05', 
+                    padding: '10px 14px', 
+                    cursor: 'pointer', 
+                    fontSize: '0.8rem', 
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    margin: 0,
+                    height: '40px',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    📷 <span style={{ textTransform: 'uppercase', fontSize: '0.7rem' }}>Olish</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleEditImageUpload} 
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                </div>
+                {editingDish.img && (
+                  <div style={{ marginTop: '6px' }}>
+                    <img src={editingDish.img} alt="Rasm ko'rinishi" style={{ width: '60px', height: '45px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
+                  </div>
+                )}
               </div>
 
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
