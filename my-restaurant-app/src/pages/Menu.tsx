@@ -17,7 +17,8 @@ import {
   Minus, 
   Send, 
   CheckCircle2,
-  MapPin
+  MapPin,
+  Star // ── INTEGRATSIYA UCHUN QO'SHILDI ──
 } from 'lucide-react';
 
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
@@ -159,6 +160,12 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [orderError, setOrderError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(false);
 
+  // ── YANGI: FEEDBACK (BAHOLASH) FORM STATE'LARI ──
+  const [feedbackRating, setFeedbackRating] = useState<number>(5);
+  const [feedbackText, setFeedbackText] = useState<string>('');
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -285,13 +292,11 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   };
 
   const handleOrderSubmit = async () => {
-    // 1. Ism va Telefon tekshiruvi
     if (!customerName.trim() || !customerPhone.trim()) {
       setOrderError(lang === 'uz' ? 'Iltimos, ism va telefon raqamingizni kiriting!' : 'Пожалуйста, введите имя и телефон!');
       return;
     }
 
-    // ── 📍 UX YECHIM: MANZIL YOKI GPS'DAN BIRI MAJBURIY QILINDI ──
     if (!customerAddress.trim() && !gpsLocation) {
       setOrderError(
         lang === 'uz' 
@@ -355,17 +360,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
           body: JSON.stringify(newOrderObj)
         });
 
-        setOrderSuccess(true);
-        setTimeout(() => {
-          setCart([]);
-          setIsOrderModalOpen(false);
-          setIsCartOpen(false);
-          setOrderSuccess(false);
-          setCustomerName('');
-          setCustomerPhone('');
-          setCustomerAddress('');
-          setGpsLocation(null);
-        }, 3000);
+        setOrderSuccess(true); // Buyurtma muvaffaqiyatli ketdi, endi quyidagi feedback formasi ko'rinadi
       } else {
         setOrderError('Xatolik: ' + (data.description || "noma'lum"));
       }
@@ -373,6 +368,45 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       setOrderError(lang === 'uz' ? 'Aloqa xatosi.' : 'Ошибка связи.');
     } finally {
       setIsSendingOrder(false);
+    }
+  };
+
+  // ── YANGI: MIJOZNING 5 YULDUZLI FIKRINI BAZAGA YUBORISH ──
+  const handleFeedbackSubmit = async () => {
+    setIsSendingFeedback(true);
+    const feedbackObj = {
+      name: customerName || "Anonim",
+      rating: feedbackRating,
+      text: feedbackText.trim() || "Fikr qoldirilmadi.",
+      date: new Date().toLocaleDateString()
+    };
+
+    try {
+      await fetch(`${DB_URL}/reviews.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedbackObj)
+      });
+      setFeedbackSuccess(true);
+      setTimeout(() => {
+        // Hamma holatni tozalaymiz va modalni yopamiz
+        setCart([]);
+        setIsOrderModalOpen(false);
+        setIsCartOpen(false);
+        setOrderSuccess(false);
+        setFeedbackSuccess(false);
+        setCustomerName('');
+        setCustomerPhone('');
+        setCustomerAddress('');
+        setGpsLocation(null);
+        setFeedbackRating(5);
+        setFeedbackText('');
+      }, 2500);
+    } catch (err) {
+      console.error("Feedback yuborishda xatolik:", err);
+      setIsOrderModalOpen(false);
+    } finally {
+      setIsSendingFeedback(false);
     }
   };
 
@@ -628,6 +662,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
               <p>{lang === 'uz' ? "Ma'lumotlaringizni kiriting" : lang === 'ru' ? 'Введите ваши данные' : 'Enter your details'}</p>
               <button className="order-modal-close" onClick={() => setIsOrderModalOpen(false)}>✕</button>
             </div>
+            
+            {/* ── 🌟 BUYURTMA FORMASI YOKI 5 YULDUZLI FIKR QOLDIRISH FORMASI ── */}
             {!orderSuccess ? (
               <div className="order-modal-body">
                 <div className="order-summary">
@@ -664,7 +700,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                   />
                 </div>
 
-                {/* ── 📍 MANZIL VA GPS ANIKLASH INPUTI (YANGI FUNKSIYONALLIK) ── */}
                 <div className="order-field">
                   <label>{lang === 'uz' ? 'Yetkazib berish manzili' : lang === 'ru' ? 'Адрес доставки' : 'Delivery Address'}</label>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -711,10 +746,87 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                 </button>
               </div>
             ) : (
-              <div className="order-success show">
-                <div className="order-success-icon" style={{ color: '#3A7A3A', marginBottom: '18px' }}><CheckCircle2 size={56} strokeWidth={1.5} /></div>
-                <h4>{lang === 'uz' ? 'Buyurtma Qabul Qilindi!' : 'Заказ Принят!'}</h4>
-                <p>{lang === 'uz' ? 'Operatorimiz tez orada siz bilan bog\'lanadi.' : 'Наш оператор скоро свяжется с вами.'}</p>
+              // ── 🌟 YANGI: 5 YULDUZLI FIKR-MULOHAZA QOLDIRISH FORMASI (ORDER SUCCESS O'RNIDA) ──
+              <div className="order-success show" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                {!feedbackSuccess ? (
+                  <>
+                    <div className="order-success-icon" style={{ color: '#3A7A3A', marginBottom: '14px' }}>
+                      <CheckCircle2 size={56} strokeWidth={1.5} />
+                    </div>
+                    <h4 style={{ marginBottom: '6px', fontFamily: 'Playfair Display, serif', fontSize: '1.4rem' }}>
+                      {lang === 'uz' ? 'Buyurtmangiz Qabul Qilindi!' : 'Заказ Принят!'}
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '24px', textAlign: 'center' }}>
+                      {lang === 'uz' ? 'Operatorimiz tez orada bog\'lanadi. Iltimos, xizmatimizni baholang:' : 'Оператор свяжется в ближайшее время. Пожалуйста, оцените нас:'}
+                    </p>
+
+                    {/* Yulduzchalar qatori */}
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '18px' }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button 
+                          key={star} 
+                          type="button" 
+                          onClick={() => setFeedbackRating(star)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', outline: 'none', padding: 0 }}
+                        >
+                          <Star 
+                            size={32} 
+                            strokeWidth={1.5} 
+                            fill={star <= feedbackRating ? 'var(--gold)' : 'none'} 
+                            color="var(--gold)" 
+                          />
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Fikr matni textarea */}
+                    <div className="order-field" style={{ width: '100%', textAlign: 'left', marginBottom: '16px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
+                        {lang === 'uz' ? 'Fikr-mulohazangiz (ixtiyoriy):' : 'Ваш отзыв (необязательно):'}
+                      </label>
+                      <textarea 
+                        placeholder={lang === 'uz' ? 'Taomlar va dastavka xizmati sizga yoqdimi?...' : 'Ваш отзыв...'} 
+                        value={feedbackText}
+                        onChange={(e) => setFeedbackText(e.target.value)}
+                        style={{ 
+                          width: '100%', 
+                          padding: '12px', 
+                          background: 'var(--bg2)', 
+                          border: '1px solid var(--border)', 
+                          color: 'var(--text)', 
+                          outline: 'none', 
+                          resize: 'none', 
+                          height: '75px',
+                          fontSize: '0.85rem',
+                          fontFamily: 'inherit',
+                          marginTop: '6px'
+                        }}
+                      />
+                    </div>
+
+                    <button 
+                      type="button"
+                      className="order-send-btn" 
+                      disabled={isSendingFeedback}
+                      onClick={handleFeedbackSubmit}
+                      style={{ background: 'var(--gold)', color: '#120D05' }}
+                    >
+                      <span>{isSendingFeedback ? '...' : (lang === 'uz' ? 'Fikrni yuborish' : 'Отправить отзыв')}</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="order-success-icon" style={{ color: '#3A7A3A', marginBottom: '18px' }}>
+                      <CheckCircle2 size={56} strokeWidth={1.5} />
+                    </div>
+                    <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.45rem', marginBottom: '8px' }}>
+                      {lang === 'uz' ? 'Katta Rahmat!' : 'Спасибо!'}
+                    </h4>
+                    <p style={{ fontSize: '0.86rem', color: 'var(--muted)' }}>
+                      {lang === 'uz' ? 'Fikr-mulohazangiz muvaffaqiyatli qabul qilindi.' : 'Ваш отзыв успешно сохранен.'}
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </div>

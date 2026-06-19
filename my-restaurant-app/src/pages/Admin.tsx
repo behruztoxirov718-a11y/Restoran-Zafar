@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
@@ -29,8 +30,8 @@ interface OrderItem {
   id: string;
   customerName: string;
   customerPhone: string;
-  customerAddress?: string; // ── YANGI ──
-  gpsLocation?: string;     // ── YANGI ──
+  customerAddress?: string;
+  gpsLocation?: string;
   items: CartItem[];
   total: number;
   date: string;
@@ -43,6 +44,7 @@ interface ReservationItem {
   date: string;
   time: string;
   guests: string;
+  tableNumber?: string; // ── YANGI ──
   wish: string;
   createdAt?: string;
 }
@@ -62,6 +64,15 @@ interface MenuItem {
   badge?: string;
   badgeKey?: string;
   meta: string;
+}
+
+// ── YANGI: MIJOZLAR FIKRI INTERFACI ──
+interface CustomerReview {
+  id: string;
+  name: string;
+  rating: number;
+  text: string;
+  date: string;
 }
 
 interface AdminProps {
@@ -162,6 +173,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [menuList, setMenuList] = useState<MenuItem[]>([]);
+  
+  // ── YANGI: MIJOZLAR FIKRLARI STATE'I ──
+  const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
 
   const [newDish, setNewDish] = useState({
     nameUz: '', nameRu: '', nameEn: '',
@@ -183,6 +197,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
 
     const fetchAllData = async () => {
       try {
+        // 1. Buyurtmalar
         const ordersRes = await fetch(`${DB_URL}/orders.json`);
         const ordersData = await ordersRes.json();
         const fetchedOrders = ordersData ? Object.keys(ordersData).map(key => ({
@@ -191,6 +206,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setOrders(fetchedOrders);
 
+        // 2. Stol band qilishlar
         const resRes = await fetch(`${DB_URL}/reservations.json`);
         const resData = await resRes.json();
         const fetchedRes = resData ? Object.keys(resData).map(key => ({
@@ -199,6 +215,16 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setReservations(fetchedRes);
 
+        // 3. Mijozlar sharhlari (YANGI) [1]
+        const reviewsRes = await fetch(`${DB_URL}/reviews.json`);
+        const reviewsData = await reviewsRes.json();
+        const fetchedReviews = reviewsData ? Object.keys(reviewsData).map(key => ({
+          id: key,
+          ...reviewsData[key]
+        })) : [];
+        setCustomerReviews(fetchedReviews);
+
+        // 4. Menyu ro'yxati
         const menuRes = await fetch(`${DB_URL}/menu.json`);
         const menuData = await menuRes.json();
         if (menuData) {
@@ -467,7 +493,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         <tr>
                           <th>Mijoz</th>
                           <th>Telefon</th>
-                          <th>Dastavka Manzili / GPS</th> {/* ── YANGILANGAN ── */}
+                          <th>Dastavka Manzili / GPS</th>
                           <th>Buyurtma Tarkibi</th>
                           <th>Summa</th>
                           <th>Vaqt</th>
@@ -478,8 +504,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                           <tr key={ord.id}>
                             <td><b>{ord.customerName}</b></td>
                             <td>{ord.customerPhone}</td>
-                            
-                            {/* ── 📍 MANZIL VA GOOGLE MAPS GPS HAVOLASI CHIQARILADI ── */}
                             <td>
                               <div style={{ fontSize: '0.85rem' }}>{ord.customerAddress || "Yo'q"}</div>
                               {ord.gpsLocation && (
@@ -502,7 +526,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                                 </a>
                               )}
                             </td>
-
                             <td>
                               {ord.items.map(i => `${i.nameUz} (${i.qty}x)`).join(', ')}
                             </td>
@@ -536,6 +559,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                           <th>Telefon</th>
                           <th>Sana va Vaqt</th>
                           <th>Mehmonlar</th>
+                          <th>Stol Raqami</th> {/* ── YANGI STOL USTUNI ── */}
                           <th>Istak</th>
                         </tr>
                       </thead>
@@ -546,7 +570,49 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                             <td>{res.phone}</td>
                             <td><span className="badge-gold">{res.date} | {res.time}</span></td>
                             <td>{res.guests}</td>
+                            
+                            {/* Stol raqami chiqariladi */}
+                            <td><span style={{ color: 'var(--gold)', fontWeight: 'bold' }}>{res.tableNumber || "Tanlanmagan"}</span></td>
+                            
                             <td>{res.wish || "Yo'q"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* ── 🌟 YANGI: MIJOZLAR QOLDIRGAN JONLI SHARHLAR JADVALI ── */}
+              <div className="admin-table-panel" style={{ marginTop: '32px' }}>
+                <div className="panel-head">
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <TrendingUp size={20} strokeWidth={1.5} color="var(--gold)" /> Mijozlar Qoldirgan Fikrlar (Oxirgi 25 tasi)
+                  </h3>
+                  <span>Umumiy: {customerReviews.length} ta fikr</span>
+                </div>
+                {customerReviews.length === 0 ? (
+                  <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi sharhlar qoldirilmagan.</p>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Mijoz</th>
+                          <th>Baho (Yulduzlar)</th>
+                          <th>Fikr-mulohaza (Opisaniye)</th>
+                          <th>Sana</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {customerReviews.slice().reverse().slice(0, 25).map(rev => (
+                          <tr key={rev.id}>
+                            <td><b>{rev.name}</b></td>
+                            <td style={{ color: 'var(--gold)', letterSpacing: '2px', fontSize: '1rem' }}>
+                              {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+                            </td>
+                            <td style={{ fontStyle: 'italic', color: '#E8DEC8' }}>"{rev.text}"</td>
+                            <td>{rev.date}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -588,12 +654,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   </div>
                 </div>
 
-                {/* ── 📸 MUVOZANATLI VA TOZA 2-USTUNLI RASM VA META GRIDI ── */}
                 <div className="form-grid-2" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                  
-                  {/* Rasm URL yoki Kamera/Fayl uploaderi [1] */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Taom Rasmi (URL yoki Kamera/Fayl) [1]</label>
+                    <label>Taom Rasmi (URL yoki Kamera/Fayl)</label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <input 
                         type="text" 
@@ -626,7 +689,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                       </label>
                     </div>
                     
-                    {/* Rasmni ko'rish va o'chirish tugmasi */}
                     {newDish.img && (
                       <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <img src={newDish.img} alt="Rasm ko'rinishi" style={{ width: '80px', height: '55px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
@@ -651,7 +713,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                     )}
                   </div>
 
-                  {/* Meta / Qisqa ma'lumot */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label>Qisqa ta'rif / Meta</label>
                     <input type="text" placeholder="🔥 35 min • 👤 1–2" value={newDish.meta} onChange={e => setNewDish({...newDish, meta: e.target.value})} />
@@ -752,7 +813,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 />
               </div>
 
-              {/* ── 📸 TAHRIRLASH OYNASIDAGI RASM YUKLASH INPUTI [1] ── */}
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                 <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Rasm URL yoki Yuklash [1]</label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -786,7 +846,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   </label>
                 </div>
                 
-                {/* Tahrirlashda rasmni ko'rish va uni o'chirish tugmasi */}
                 {editingDish.img && (
                   <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <img src={editingDish.img} alt="Rasm ko'rinishi" style={{ width: '60px', height: '45px', objectFit: 'cover', border: '1px solid var(--gold)' }} />

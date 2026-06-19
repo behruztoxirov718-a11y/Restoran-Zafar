@@ -20,6 +20,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
     date: '',
     time: '',
     guests: '1–2 kishi',
+    tableNumber: '1-stol', // ── YANGI STOL RAQAMI STATE'I ──
     wish: ''
   });
   const [errors, setErrors] = useState({ name: false, phone: false, date: false, time: false });
@@ -53,6 +54,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
       'rm-date': 'date',
       'rm-time': 'time',
       'rm-guests': 'guests',
+      'rm-tableNumber': 'tableNumber', // ── FIELD MAP YANGILANDI ──
       'rm-wish': 'wish'
     };
     const stateKey = fieldMap[id];
@@ -62,7 +64,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
   };
 
   const handleReservationSubmit = async () => {
-    const { name, phone, date, time, guests, wish } = formData;
+    const { name, phone, date, time, guests, tableNumber, wish } = formData;
     const newErrors = {
       name: !name.trim(),
       phone: !phone.trim(),
@@ -87,11 +89,14 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
 
     const TG_BOT_TOKEN = '8868012287:AAFa67M5cikUi41-QfyxGBf9NSxxgKwENqA';
     const TG_CHAT_ID = '6148610387';
+    
+    // Telegram xabarga stol raqami ham qo'shildi
     const message = `🔔 *Yangi Stol Band Qilindi!*\n\n` +
       `👤 *Ism:* ${name}\n` +
       `📞 *Telefon:* ${phone}\n` +
       `📅 *Sana:* ${date}\n` +
       `🕒 *Vaqt:* ${time}\n` +
+      `🪑 *Stol raqami:* ${tableNumber}\n` +
       `👥 *Mehmonlar:* ${guests}\n` +
       `✍️ *Istak:* ${wish || "Yo'q"}`;
 
@@ -104,7 +109,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
       const data = await response.json();
       if (data.ok) {
         const newRes = {
-          name, phone, date, time, guests, wish,
+          name, phone, date, time, guests, tableNumber, wish,
           createdAt: new Date().toISOString()
         };
 
@@ -118,7 +123,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
         setTimeout(() => {
           setIsModalOpen(false);
           setIsSuccess(false);
-          setFormData({ name: '', phone: '', date: '', time: '', guests: '1–2 kishi', wish: '' });
+          setFormData({ name: '', phone: '', date: '', time: '', guests: '1–2 kishi', tableNumber: '1-stol', wish: '' });
         }, 3500);
       } else {
         setErrorMsg('Xatolik: ' + (data.description || "noma'lum"));
@@ -544,15 +549,30 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
                     />
                   </div>
                 </div>
-                <div className="res-modal-field full">
-                  <label>{t.form_guests}</label>
-                  <select id="rm-guests" value={formData.guests} onChange={handleInputChange}>
-                    <option value="1–2 kishi">{t.guests1}</option>
-                    <option value="3–4 kishi">{t.guests2}</option>
-                    <option value="5–8 kishi">{t.guests3}</option>
-                    <option value="9+ kishi (banket)">{t.guests4}</option>
-                  </select>
+
+                {/* ── 🪑 STOL TANLASH VA MEHMONLAR SONI ── */}
+                <div className="res-modal-row">
+                  <div className="res-modal-field">
+                    <label>{t.form_guests}</label>
+                    <select id="rm-guests" value={formData.guests} onChange={handleInputChange}>
+                      <option value="1–2 kishi">{t.guests1}</option>
+                      <option value="3–4 kishi">{t.guests2}</option>
+                      <option value="5–8 kishi">{t.guests3}</option>
+                      <option value="9+ kishi (banket)">{t.guests4}</option>
+                    </select>
+                  </div>
+                  
+                  {/* ── YANGI: 1 DAN 30 GACHA STOL TANLOVI ── */}
+                  <div className="res-modal-field">
+                    <label>Stol Raqami (1–30)</label>
+                    <select id="rm-tableNumber" value={formData.tableNumber} onChange={handleInputChange}>
+                      {Array.from({ length: 30 }).map((_, i) => (
+                        <option key={i} value={`${i + 1}-stol`}>{i + 1}-stol</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+
                 <div className="res-modal-field full">
                   <label>{t.form_wish}</label>
                   <input 
