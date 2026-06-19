@@ -21,6 +21,7 @@ import {
 
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
+
 interface CartItem {
   id: string;
   nameUz: string;
