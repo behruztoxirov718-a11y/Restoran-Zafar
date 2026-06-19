@@ -12,7 +12,7 @@ import {
   LogOut 
 } from 'lucide-react';
 
-// ⚠️ FIREBASE DATABASE URL (oxirida / belgisi bo'lmasin!)
+// ⚠️ FIREBASE DATABASE URL
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
 interface CartItem {
@@ -74,7 +74,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'm2', cat: 'milliy', nameUz: 'Buxoro Dimlama', nameRu: 'Бухарская Димлама', nameEn: 'Bukhara Dimlama',
-    price: 52000, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+    price: 52000, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80',
     descKey: 'desc_dimlama', meta: '🕐 50 min • 👤 2'
   },
   {
@@ -128,7 +128,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
   },
   {
-    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
+    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Choy', nameEn: 'Green Tea',
     price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
     descKey: 'desc_choy', meta: '☕ • 🌿'
   },
@@ -212,7 +212,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     fetchAllData();
   }, []);
 
-  // ── 📸 RASMNI SIFATINI BUZMASDAN AVTOMATIK SIQISH KODI (Base64) ──
+  // ── 📸 TS MOYIL SIFATINI SIQISH KODI (Implicit any xatoligi 100% tuzatildi) ──
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -247,13 +247,12 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
           resolve(compressedBase64);
         };
-        img.onerror = (err) => reject(err);
+        img.onerror = () => reject(new Error("Image load failed"));
       };
-      reader.onerror = (err) => reject(err);
+      reader.onerror = () => reject(new Error("FileReader failed"));
     });
   };
 
-  // Yangi taom uchun rasm yuklashni boshqarish [1]
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -265,13 +264,12 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     }
   };
 
-  // Tahrirlanayotgan taom uchun rasm yuklashni boshqarish [1]
   const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !editingDish) return;
     try {
       const base64 = await compressImage(file);
-      setEditingDish({ ...editingDish, img: base64 });
+      setEditingDish(prev => prev ? { ...prev, img: base64 } : null);
     } catch (err) {
       console.error("Rasm yuklashda xatolik:", err);
     }
@@ -536,7 +534,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         {activeTab === 'menuEdit' && (
           <div className="menu-edit-content">
             <div className="admin-form-panel">
-              <h3>＋ Yangi Taom Qo'shish</h3>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PlusCircle size={20} strokeWidth={1.5} color="var(--gold)" /> Yangi Taom Qo'shish
+              </h3>
               <form onSubmit={handleAddDish} className="add-dish-form">
                 <div className="form-grid-3">
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -560,9 +560,11 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                     </select>
                   </div>
                 </div>
+
+                {/* ── 📸 MUVOZANATLI VA TOZA 2-USTUNLI RASM VA META GRIDI ── */}
                 <div className="form-grid-2" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                   
-                  {/* ── 📸 YANGILANGAN RASM YUKLASH INPUTI ── */}
+                  {/* Rasm URL yoki Kamera/Fayl uploaderi [1] */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label>Taom Rasmi (URL yoki Kamera/Fayl)</label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -597,7 +599,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                       </label>
                     </div>
                     
-                    {/* ── YANGI: RASMNI KO'RISH VA UNI O'CHIRISH TUGMASI ── */}
+                    {/* Rasmni ko'rish va o'chirish tugmasi */}
                     {newDish.img && (
                       <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <img src={newDish.img} alt="Rasm ko'rinishi" style={{ width: '80px', height: '55px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
@@ -622,6 +624,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                     )}
                   </div>
 
+                  {/* Meta / Qisqa ma'lumot */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label>Qisqa ta'rif / Meta</label>
                     <input type="text" placeholder="🔥 35 min • 👤 1–2" value={newDish.meta} onChange={e => setNewDish({...newDish, meta: e.target.value})} />
@@ -705,22 +708,32 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
             <form onSubmit={handleSaveEdit}>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                 <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Taom nomi (UZ)</label>
-                <input style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} type="text" value={editingDish.nameUz} onChange={e => setEditingDish({...editingDish, nameUz: e.target.value})} />
+                <input 
+                  style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} 
+                  type="text" 
+                  value={editingDish.nameUz} 
+                  onChange={e => setEditingDish(prev => prev ? { ...prev, nameUz: e.target.value } : null)} 
+                />
               </div>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                 <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Yangi narxi (so'm)</label>
-                <input style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} type="number" value={editingDish.price} onChange={e => setEditingDish({...editingDish, price: Number(e.target.value)})} />
+                <input 
+                  style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} 
+                  type="number" 
+                  value={editingDish.price} 
+                  onChange={e => setEditingDish(prev => prev ? { ...prev, price: Number(e.target.value) } : null)} 
+                />
               </div>
 
-              {/* ── 📸 TAHRIRLASH OYNASIDAGI RASM YUKLASH INPUTI ── */}
+              {/* ── 📸 TAHRIRLASH OYNASIDAGI RASM YUKLASH INPUTI [1] ── */}
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-                <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Rasm URL yoki Yuklash</label>
+                <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Rasm URL yoki Yuklash [1]</label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input 
                     style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', flex: 1 }} 
                     type="text" 
                     value={editingDish.img} 
-                    onChange={e => setEditingDish({...editingDish, img: e.target.value})} 
+                    onChange={e => setEditingDish(prev => prev ? { ...prev, img: e.target.value } : null)} 
                   />
                   <label style={{ 
                     background: 'var(--gold)', 
@@ -746,13 +759,13 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   </label>
                 </div>
                 
-                {/* ── YANGI: TAHRIRLASHDA RASMNI KO'RISH VA UNI O'CHIRISH TUGMASI ── */}
+                {/* Tahrirlashda rasmni ko'rish va uni o'chirish tugmasi */}
                 {editingDish.img && (
                   <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <img src={editingDish.img} alt="Rasm ko'rinishi" style={{ width: '60px', height: '45px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
                     <button 
                       type="button" 
-                      onClick={() => setEditingDish({ ...editingDish, img: '' })}
+                      onClick={() => setEditingDish(prev => prev ? { ...prev, img: '' } : null)}
                       style={{
                         background: 'rgba(212,112,58,0.15)',
                         border: '1px solid rgba(212,112,58,0.3)',
@@ -776,7 +789,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 <textarea 
                   style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', resize: 'vertical', minHeight: '60px', fontFamily: 'inherit' }}
                   value={editingDish.descUz || ''} 
-                  onChange={e => setEditingDish({...editingDish, descUz: e.target.value})} 
+                  onChange={e => setEditingDish(prev => prev ? { ...prev, descUz: e.target.value } : null)} 
                 />
               </div>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
@@ -784,7 +797,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 <textarea 
                   style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', resize: 'vertical', minHeight: '60px', fontFamily: 'inherit' }}
                   value={editingDish.descRu || ''} 
-                  onChange={e => setEditingDish({...editingDish, descRu: e.target.value})} 
+                  onChange={e => setEditingDish(prev => prev ? { ...prev, descRu: e.target.value } : null)} 
                 />
               </div>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
@@ -792,7 +805,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 <textarea 
                   style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', resize: 'vertical', minHeight: '60px', fontFamily: 'inherit' }}
                   value={editingDish.descEn || ''} 
-                  onChange={e => setEditingDish({...editingDish, descEn: e.target.value})} 
+                  onChange={e => setEditingDish(prev => prev ? { ...prev, descEn: e.target.value } : null)} 
                 />
               </div>
 
