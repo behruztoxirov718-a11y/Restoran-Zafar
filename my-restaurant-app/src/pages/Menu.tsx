@@ -21,7 +21,6 @@ import {
 
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
-
 interface CartItem {
   id: string;
   nameUz: string;
@@ -132,7 +131,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_halva', meta: '🍬 • 🥜'
   },
   {
-    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Чак', nameEn: 'Chak-Chak',
+    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Chak', nameEn: 'Chak-Chak',
     price: 18000, img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',
     descKey: 'desc_chakchak', badge: 'hot', meta: '🍯 • 🤎'
   }
@@ -473,9 +472,13 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                         <img className="cart-item-img" src={item.img} alt={itemName} />
                         <div className="cart-item-name">{itemName}</div>
                         <div className="qty-ctrl">
-                          <button className="qty-btn" onClick={() => changeQty(idx, -1)}>−</button>
+                          <button className="qty-btn" onClick={() => changeQty(idx, -1)}>
+                            <Minus size={14} strokeWidth={2} />
+                          </button>
                           <span className="qty-num">{item.qty}</span>
-                          <button className="qty-btn" onClick={() => changeQty(idx, 1)}>+</button>
+                          <button className="qty-btn" onClick={() => changeQty(idx, 1)}>
+                            <Plus size={14} strokeWidth={2} />
+                          </button>
                         </div>
                         <div className="cart-item-price">{(item.price * item.qty).toLocaleString()} {t.currency}</div>
                       </div>
@@ -547,7 +550,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
               <div className="order-success show">
                 <div className="order-success-icon" style={{ color: '#3A7A3A', marginBottom: '18px' }}><CheckCircle2 size={56} strokeWidth={1.5} /></div>
                 <h4>{lang === 'uz' ? 'Buyurtma Qabul Qilindi!' : 'Заказ Принят!'}</h4>
-                <p>{lang === 'uz' ? 'Operatorimiz tez orada siz bilan bog\'lanadi.' : 'Наш оператор скоро свяжется с вами.'}</p>
+                <p>{lang === 'uz' ? 'Operatorimiz tez orada siz bilan bog\'lanadi.' : 'Наш operator скоро свяжется с вами.'}</p>
               </div>
             )}
           </div>
