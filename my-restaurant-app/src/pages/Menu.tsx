@@ -16,7 +16,8 @@ import {
   ShoppingCart, 
   Minus, 
   Send, 
-  CheckCircle2 
+  CheckCircle2,
+  MapPin
 } from 'lucide-react';
 
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
@@ -116,7 +117,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
   },
   {
-    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Choy', nameEn: 'Green Tea',
+    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
     price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
     descKey: 'desc_choy', meta: '☕ • 🌿'
   },
@@ -131,7 +132,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_halva', meta: '🍬 • 🥜'
   },
   {
-    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Чак', nameEn: 'Chak-Chak',
+    id: 'sh2_s', cat: 'shirinlik', nameUz: 'Chak-Chak', nameRu: 'Чак-Chak', nameEn: 'Chak-Chak',
     price: 18000, img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80',
     descKey: 'desc_chakchak', badge: 'hot', meta: '🍯 • 🤎'
   }
@@ -149,12 +150,17 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  
+  const [customerAddress, setCustomerAddress] = useState('');
+  const [gpsLocation, setGpsLocation] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+
   const [isSendingOrder, setIsSendingOrder] = useState(false);
   const [orderError, setOrderError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // ── SKELETON LOADER HOLATI ──
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -219,6 +225,29 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     return item.descUz || t[item.descKey] || 'Tavsif mavjud emas.';
   };
 
+  const handleGetGPS = () => {
+    if (!navigator.geolocation) {
+      alert(lang === 'uz' ? 'Brauzeringiz geolokatsiyani qo\'llab-quvvatlamaydi.' : 'Геолокация не поддерживается.');
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        setGpsLocation(mapUrl);
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("GPS aniqlashda xatolik:", error);
+        setIsLocating(false);
+        alert(lang === 'uz' ? "GPS aniqlashda xatolik yuz berdi. Iltimos, joylashuvga ruxsat berganingizni tekshiring." : "Ошибка определения GPS.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   const handleAddToCart = (item: MenuItem) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
@@ -256,7 +285,23 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   };
 
   const handleOrderSubmit = async () => {
-    if (!customerName.trim() || !customerPhone.trim()) return;
+    // 1. Ism va Telefon tekshiruvi
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setOrderError(lang === 'uz' ? 'Iltimos, ism va telefon raqamingizni kiriting!' : 'Пожалуйста, введите имя и телефон!');
+      return;
+    }
+
+    // ── 📍 UX YECHIM: MANZIL YOKI GPS'DAN BIRI MAJBURIY QILINDI ──
+    if (!customerAddress.trim() && !gpsLocation) {
+      setOrderError(
+        lang === 'uz' 
+          ? 'Iltimos, yetkazib berish manzilingizni yozing yoki GPS tugmasini bosib joylashuvingizni aniqlang!' 
+          : lang === 'ru' 
+            ? 'Пожалуйста, введите адрес доставки или определите местоположение по GPS!' 
+            : 'Please enter a delivery address or locate via GPS!'
+      );
+      return;
+    }
 
     setIsSendingOrder(true);
     setOrderError('');
@@ -266,8 +311,17 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
 
     let orderDetails = `🛒 *Yangi Buyurtma Keldi!*\n\n` +
       `👤 *Mijoz:* ${customerName}\n` +
-      `📞 *Telefon:* ${customerPhone}\n\n` +
-      `📦 *Buyurtma tarkibi:*\n`;
+      `📞 *Telefon:* ${customerPhone}\n`;
+
+    if (customerAddress.trim()) {
+      orderDetails += `📍 *Manzil:* ${customerAddress}\n`;
+    }
+
+    if (gpsLocation) {
+      orderDetails += `🗺️ *GPS Joylashuv:* [Google Maps orqali ko'rish](${gpsLocation})\n`;
+    }
+
+    orderDetails += `\n📦 *Buyurtma tarkibi:*\n`;
 
     cart.forEach((item, idx) => {
       const itemName = lang === 'ru' ? item.nameRu : lang === 'en' ? item.nameEn : item.nameUz;
@@ -288,6 +342,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
         const newOrderObj = {
           customerName,
           customerPhone,
+          customerAddress: customerAddress || "Yo'q",
+          gpsLocation: gpsLocation || null,
           items: cart,
           total,
           date: new Date().toLocaleString()
@@ -307,6 +363,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
           setOrderSuccess(false);
           setCustomerName('');
           setCustomerPhone('');
+          setCustomerAddress('');
+          setGpsLocation(null);
         }, 3000);
       } else {
         setOrderError('Xatolik: ' + (data.description || "noma'lum"));
@@ -328,7 +386,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     return matchesCat && matchesSearch;
   });
 
-  // ── SKELETON CARD COMPONENTI (Yuklanayotganda ko'rsatiladi) ──
   const SkeletonCard = () => (
     <div className="menu-card skeleton-card-loading">
       <div className="card-img-wrap" style={{ background: 'rgba(255,255,255,0.06)', height: '205px' }} />
@@ -345,6 +402,50 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     </div>
   );
 
+  // ── SKELETON LOADER QAYTARISH ──
+  if (isLoading) {
+    return (
+      <>
+        <div className="menu-hero" id="menuHero" data-word={t.hero_word}>
+          <div className="hero-tag">{t.hero_tag}</div>
+          <h1><span>{t.hero_h1a}</span> <em>{t.hero_h1b}</em></h1>
+          <p>{t.hero_p}</p>
+        </div>
+
+        <div className="section-divider"></div>
+
+        <div className="cat-bar">
+          <button className="cat-btn active">
+            <Utensils size={18} strokeWidth={1.5} /> <span>{t.cat_all}</span>
+          </button>
+        </div>
+
+        <div className="search-wrap">
+          <div className="search-box">
+            <span className="search-icon" style={{ display: 'flex', color: 'var(--muted)' }}><Search size={18} strokeWidth={1.5} /></span>
+            <input type="text" placeholder={t.search_placeholder} disabled />
+          </div>
+        </div>
+
+        <main className="menu-body">
+          <section className="menu-section fade-up visible">
+            <div className="section-header">
+              <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}><Utensils size={20} strokeWidth={1.5} /></span>
+              <h2 className="section-title">Yuklanmoqda...</h2>
+              <div className="section-header-line"></div>
+            </div>
+            <div className="cards-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          </section>
+        </main>
+      </>
+    );
+  }
+
+  // ── MENYU ASOSIY SAHIFASINI QAYTARISH ──
   return (
     <>
       <div className="menu-hero" id="menuHero" data-word={t.hero_word}>
@@ -395,91 +496,73 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       </div>
 
       <main className="menu-body">
-        {/* ── LOADER HOLATIDA SKELETONLAR CHIQARISH ── */}
-        {isLoading ? (
-          <section className="menu-section fade-up visible">
-            <div className="section-header">
-              <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}><Utensils size={20} strokeWidth={1.5} /></span>
-              <h2 className="section-title">Yuklanmoqda...</h2>
-              <div className="section-header-line"></div>
-            </div>
-            <div className="cards-grid">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
-            </div>
-          </section>
-        ) : (
-          ['milliy', 'grill', 'shorva', 'salat', 'non', 'ichimlik', 'shirinlik'].map(cat => {
-            const sectionItems = filteredItems.filter(item => item.cat === cat);
-            if (sectionItems.length === 0) return null;
+        {['milliy', 'grill', 'shorva', 'salat', 'non', 'ichimlik', 'shirinlik'].map(cat => {
+          const sectionItems = filteredItems.filter(item => item.cat === cat);
+          if (sectionItems.length === 0) return null;
 
-            const sectionTitleMap: { [key: string]: string } = {
-              milliy: t.sec_milliy, grill: t.sec_grill, shorva: t.sec_shorva,
-              salat: t.sec_salat, non: t.sec_non, ichimlik: t.sec_ichimlik, shirinlik: t.sec_shirinlik
-            };
+          const sectionTitleMap: { [key: string]: string } = {
+            milliy: t.sec_milliy, grill: t.sec_grill, shorva: t.sec_shorva,
+            salat: t.sec_salat, non: t.sec_non, ichimlik: t.sec_ichimlik, shirinlik: t.sec_shirinlik
+          };
 
-            const sectionEmojiMap: { [key: string]: React.ReactNode } = {
-              milliy: <ChefHat size={20} strokeWidth={1.5} />, 
-              grill: <Flame size={20} strokeWidth={1.5} />, 
-              shorva: <Soup size={20} strokeWidth={1.5} />, 
-              salat: <Salad size={20} strokeWidth={1.5} />, 
-              non: <Croissant size={20} strokeWidth={1.5} />, 
-              ichimlik: <Coffee size={20} strokeWidth={1.5} />, 
-              shirinlik: <Cake size={20} strokeWidth={1.5} />
-            };
+          const sectionEmojiMap: { [key: string]: React.ReactNode } = {
+            milliy: <ChefHat size={20} strokeWidth={1.5} />, 
+            grill: <Flame size={20} strokeWidth={1.5} />, 
+            shorva: <Soup size={20} strokeWidth={1.5} />, 
+            salat: <Salad size={20} strokeWidth={1.5} />, 
+            non: <Croissant size={20} strokeWidth={1.5} />, 
+            ichimlik: <Coffee size={20} strokeWidth={1.5} />, 
+            shirinlik: <Cake size={20} strokeWidth={1.5} />
+          };
 
-            return (
-              <section key={cat} className="menu-section fade-up">
-                <div className="section-header">
-                  <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}>{sectionEmojiMap[cat]}</span>
-                  <h2 className="section-title">{sectionTitleMap[cat]}</h2>
-                  <div className="section-header-line"></div>
-                </div>
-                <div className="cards-grid">
-                  {sectionItems.map(item => (
-                    <div key={item.id} className="menu-card">
-                      <div className="card-img-wrap">
-                        {item.badge && (
-                          <span className={`card-badge ${item.badge === 'veg' ? 'badge-veg' : item.badge === 'new' ? 'badge-new' : 'badge-hot'}`}>
-                            {item.badgeKey ? t[item.badgeKey] : item.badge.toUpperCase()}
-                          </span>
-                        )}
-                        <button className={`card-like ${likes[item.id] ? 'liked' : ''}`} onClick={() => toggleLike(item.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Heart size={18} strokeWidth={1.5} fill={likes[item.id] ? "var(--rust)" : "none"} color={likes[item.id] ? "var(--rust)" : "var(--muted)"} />
-                        </button>
-                        <img className="card-img" src={item.img} alt={getDishName(item)} />
-                      </div>
-                      <div className="card-body">
-                        <div className="card-cat">{sectionTitleMap[cat]}</div>
-                        <div className="card-name">{getDishName(item)}</div>
-                        
-                        <p className="card-desc">{getDishDesc(item)}</p>
-                        
-                        <div className="card-meta">{item.meta}</div>
-                        <div className="card-footer">
-                          <div className="card-price">
-                            {item.price.toLocaleString()} <small>{t.currency}</small>
-                          </div>
-                          
-                          {/* ── PREMIUM OLTIN-ANIMATSION ALOQA TUGMASI ── */}
-                          <button 
-                            className={`add-btn ${addedStatus[item.id] ? 'added' : ''}`} 
-                            onClick={() => handleAddToCart(item)}
-                            style={addedStatus[item.id] ? { backgroundColor: 'var(--gold)', color: '#120D05', borderColor: 'var(--gold)', transform: 'scale(1.04)', transition: 'all 0.25s ease' } : {}}
-                          >
-                            <span style={{ display: 'inline-flex', alignItems: 'center' }}>{addedStatus[item.id] ? <Check size={16} strokeWidth={2} /> : <Plus size={16} strokeWidth={2} />}</span> 
-                            <span>{addedStatus[item.id] ? (lang === 'uz' ? "Qo'shildi" : lang === 'ru' ? "Добавлено" : "Added") : t.add_btn}</span>
-                          </button>
+          return (
+            <section key={cat} className="menu-section fade-up">
+              <div className="section-header">
+                <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}>{sectionEmojiMap[cat]}</span>
+                <h2 className="section-title">{sectionTitleMap[cat]}</h2>
+                <div className="section-header-line"></div>
+              </div>
+              <div className="cards-grid">
+                {sectionItems.map(item => (
+                  <div key={item.id} className="menu-card">
+                    <div className="card-img-wrap">
+                      {item.badge && (
+                        <span className={`card-badge ${item.badge === 'veg' ? 'badge-veg' : item.badge === 'new' ? 'badge-new' : 'badge-hot'}`}>
+                          {item.badgeKey ? t[item.badgeKey] : item.badge.toUpperCase()}
+                        </span>
+                      )}
+                      <button className={`card-like ${likes[item.id] ? 'liked' : ''}`} onClick={() => toggleLike(item.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Heart size={18} strokeWidth={1.5} fill={likes[item.id] ? "var(--rust)" : "none"} color={likes[item.id] ? "var(--rust)" : "var(--muted)"} />
+                      </button>
+                      <img className="card-img" src={item.img} alt={getDishName(item)} />
+                    </div>
+                    <div className="card-body">
+                      <div className="card-cat">{sectionTitleMap[cat]}</div>
+                      <div className="card-name">{getDishName(item)}</div>
+                      
+                      <p className="card-desc">{getDishDesc(item)}</p>
+                      
+                      <div className="card-meta">{item.meta}</div>
+                      <div className="card-footer">
+                        <div className="card-price">
+                          {item.price.toLocaleString()} <small>{t.currency}</small>
                         </div>
+                        <button 
+                          className={`add-btn ${addedStatus[item.id] ? 'added' : ''}`} 
+                          onClick={() => handleAddToCart(item)}
+                          style={addedStatus[item.id] ? { backgroundColor: 'var(--gold)', color: '#120D05', transform: 'scale(1.03)', transition: 'all 0.25s ease' } : {}}
+                        >
+                          <span style={{ display: 'inline-flex', alignItems: 'center' }}>{addedStatus[item.id] ? <Check size={16} strokeWidth={2} /> : <Plus size={16} strokeWidth={2} />}</span> 
+                          <span>{addedStatus[item.id] ? (lang === 'uz' ? "Qo'shildi" : lang === 'ru' ? "Добавлено" : "Added") : t.add_btn}</span>
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })
-        )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </main>
 
       {totalItemsCount > 0 && (
@@ -580,6 +663,48 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                     onChange={(e) => setCustomerPhone(e.target.value)}
                   />
                 </div>
+
+                {/* ── 📍 MANZIL VA GPS ANIKLASH INPUTI (YANGI FUNKSIYONALLIK) ── */}
+                <div className="order-field">
+                  <label>{lang === 'uz' ? 'Yetkazib berish manzili' : lang === 'ru' ? 'Адрес доставки' : 'Delivery Address'}</label>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      placeholder={lang === 'uz' ? 'Chilonzor 9-kvartal, 12-uy (yoki GPS bosing)' : 'Адрес доставки...'} 
+                      value={customerAddress}
+                      onChange={(e) => setCustomerAddress(e.target.value)}
+                      style={{ flex: 1 }}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={handleGetGPS}
+                      disabled={isLocating}
+                      style={{ 
+                        background: gpsLocation ? '#3A7A3A' : 'var(--gold)', 
+                        color: gpsLocation ? '#fff' : '#120D05', 
+                        padding: '12px', 
+                        cursor: 'pointer', 
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        height: '45px',
+                        whiteSpace: 'nowrap',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      <MapPin size={16} /> <span>{isLocating ? '...' : (gpsLocation ? 'GPS OK' : 'GPS')}</span>
+                    </button>
+                  </div>
+                  {gpsLocation && (
+                    <p style={{ color: '#3A7A3A', fontSize: '0.75rem', marginTop: '6px', fontWeight: 'bold' }}>
+                      ✓ {lang === 'uz' ? 'Geolokatsiya muvaffaqiyatli aniqlandi!' : 'Геолокация определена!'}
+                    </p>
+                  )}
+                </div>
+
                 <p style={{ color: 'var(--rust)', fontSize: '0.8rem', marginBottom: '8px' }}>{orderError}</p>
                 <button className="order-send-btn" disabled={isSendingOrder} onClick={handleOrderSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   <Send size={16} strokeWidth={1.5} /> <span>{isSendingOrder ? (lang === 'uz' ? 'Yuborilmoqda...' : 'Отправка...') : (lang === 'uz' ? 'Buyurtma Yuborish' : 'Отправить заказ')}</span>

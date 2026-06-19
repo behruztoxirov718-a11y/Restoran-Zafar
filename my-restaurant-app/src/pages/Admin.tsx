@@ -29,6 +29,8 @@ interface OrderItem {
   id: string;
   customerName: string;
   customerPhone: string;
+  customerAddress?: string; // ── YANGI ──
+  gpsLocation?: string;     // ── YANGI ──
   items: CartItem[];
   total: number;
   date: string;
@@ -74,7 +76,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'm2', cat: 'milliy', nameUz: 'Buxoro Dimlama', nameRu: 'Бухарская Димлама', nameEn: 'Bukhara Dimlama',
-    price: 52000, img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80',
+    price: 52000, img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
     descKey: 'desc_dimlama', meta: '🕐 50 min • 👤 2'
   },
   {
@@ -128,7 +130,7 @@ const DEFAULT_MENU_ITEMS: MenuItem[] = [
     descKey: 'desc_somsa', badge: 'hot', badgeKey: 'badge_popular', meta: '🔥 • Tayyor'
   },
   {
-    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Choy', nameEn: 'Green Tea',
+    id: 'i1', cat: 'ichimlik', nameUz: "Ko'k Choy", nameRu: 'Зелёный Чай', nameEn: 'Green Tea',
     price: 8000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80',
     descKey: 'desc_choy', meta: '☕ • 🌿'
   },
@@ -212,7 +214,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     fetchAllData();
   }, []);
 
-  // ── 📸 TS MOYIL SIFATINI SIQISH KODI (Implicit any xatoligi 100% tuzatildi) ──
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -466,6 +467,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                         <tr>
                           <th>Mijoz</th>
                           <th>Telefon</th>
+                          <th>Dastavka Manzili / GPS</th> {/* ── YANGILANGAN ── */}
                           <th>Buyurtma Tarkibi</th>
                           <th>Summa</th>
                           <th>Vaqt</th>
@@ -476,6 +478,31 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                           <tr key={ord.id}>
                             <td><b>{ord.customerName}</b></td>
                             <td>{ord.customerPhone}</td>
+                            
+                            {/* ── 📍 MANZIL VA GOOGLE MAPS GPS HAVOLASI CHIQARILADI ── */}
+                            <td>
+                              <div style={{ fontSize: '0.85rem' }}>{ord.customerAddress || "Yo'q"}</div>
+                              {ord.gpsLocation && (
+                                <a 
+                                  href={ord.gpsLocation} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  style={{ 
+                                    color: 'var(--gold)', 
+                                    fontSize: '0.78rem', 
+                                    textDecoration: 'underline', 
+                                    display: 'inline-flex', 
+                                    alignItems: 'center', 
+                                    gap: '4px', 
+                                    marginTop: '4px',
+                                    fontWeight: 'bold'
+                                  }}
+                                >
+                                  📍 Xaritada ko'rish
+                                </a>
+                              )}
+                            </td>
+
                             <td>
                               {ord.items.map(i => `${i.nameUz} (${i.qty}x)`).join(', ')}
                             </td>
@@ -566,7 +593,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   
                   {/* Rasm URL yoki Kamera/Fayl uploaderi [1] */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Taom Rasmi (URL yoki Kamera/Fayl)</label>
+                    <label>Taom Rasmi (URL yoki Kamera/Fayl) [1]</label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <input 
                         type="text" 
