@@ -1,6 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { T } from '../translations';
+
+// ⚠️ BU YERGA O'ZINGIZNING FIREBASE DATABASE URL-INGIZNI QO'YING (oxirida / belgisi bo'lmasin!)
+const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
 interface HomeProps {
   lang: string;
@@ -101,13 +103,17 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
       });
       const data = await response.json();
       if (data.ok) {
-        // ── ADMIN STATISTIKA UCHUN MA'LUMOTLARNI SAQLASH ──
-        const savedRes = JSON.parse(localStorage.getItem('zafar_reservations') || '[]');
+        // ── GOOGLE CLOUD MA'LUMOTLAR BAZASIGA SAQLASH ──
         const newRes = {
-          id: 'res_' + Date.now(),
-          name, phone, date, time, guests, wish
+          name, phone, date, time, guests, wish,
+          createdAt: new Date().toISOString()
         };
-        localStorage.setItem('zafar_reservations', JSON.stringify([...savedRes, newRes]));
+
+        await fetch(`${DB_URL}/reservations.json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newRes)
+        });
 
         setIsSuccess(true);
         setTimeout(() => {

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// ⚠️ BU YERGA O'ZINGIZNING FIREBASE DATABASE URL-INGIZNI QO'YING (oxirida / belgisi bo'lmasin!)
+const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
+
 interface CartItem {
   id: string;
   nameUz: string;
@@ -39,9 +42,9 @@ interface MenuItem {
   price: number;
   img: string;
   descKey: string;
-  descUz?: string;  // Yangi qo'shilgan tavsif maydoni (UZ)
-  descRu?: string;  // Yangi qo'shilgan tavsif maydoni (RU)
-  descEn?: string;  // Yangi qo'shilgan tavsif maydoni (EN)
+  descUz?: string;
+  descRu?: string;
+  descEn?: string;
   badge?: string;
   badgeKey?: string;
   meta: string;
@@ -146,39 +149,59 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [menuList, setMenuList] = useState<MenuItem[]>([]);
 
-  // Yangi taom qo'shish formasi (Ta'rif/Tavsif qo'shildi)
   const [newDish, setNewDish] = useState({
     nameUz: '', nameRu: '', nameEn: '',
     price: '', cat: 'milliy', img: '',
-    descUz: '', descRu: '', descEn: '', // Ta'riflar
+    descUz: '', descRu: '', descEn: '',
     meta: '🔥 • Yangi'
   });
 
   const [editingDish, setEditingDish] = useState<MenuItem | null>(null);
 
-  // ── CUSTOM MODAL NOTIFICATION (Alert o'rniga ishlatiladi) ──
   const [notification, setNotification] = useState<{ isOpen: boolean; message: string }>({
     isOpen: false,
     message: ''
   });
 
+  // ── FIREBASE BAZADAN BARCHA MA'LUMOTLARNI SINXRON YUKLASH ──
   useEffect(() => {
     const adminAuth = localStorage.getItem('zafar_admin_auth');
     if (adminAuth === 'true') setIsLoggedIn(true);
 
-    const savedOrders = JSON.parse(localStorage.getItem('zafar_orders') || '[]');
-    setOrders(savedOrders);
+    const fetchAllData = async () => {
+      try {
+        // 1. Buyurtmalarni yuklash
+        const ordersRes = await fetch(`${DB_URL}/orders.json`);
+        const ordersData = await ordersRes.json();
+        const fetchedOrders = ordersData ? Object.keys(ordersData).map(key => ({
+          id: key,
+          ...ordersData[key]
+        })) : [];
+        setOrders(fetchedOrders);
 
-    const savedRes = JSON.parse(localStorage.getItem('zafar_reservations') || '[]');
-    setReservations(savedRes);
+        // 2. Stol band qilishlarni yuklash
+        const resRes = await fetch(`${DB_URL}/reservations.json`);
+        const resData = await resRes.json();
+        const fetchedRes = resData ? Object.keys(resData).map(key => ({
+          id: key,
+          ...resData[key]
+        })) : [];
+        setReservations(fetchedRes);
 
-    const savedMenu = localStorage.getItem('zafar_menu');
-    if (savedMenu) {
-      setMenuList(JSON.parse(savedMenu));
-    } else {
-      setMenuList(DEFAULT_MENU_ITEMS);
-      localStorage.setItem('zafar_menu', JSON.stringify(DEFAULT_MENU_ITEMS));
-    }
+        // 3. Menyu ro'yxatini yuklash
+        const menuRes = await fetch(`${DB_URL}/menu.json`);
+        const menuData = await menuRes.json();
+        if (menuData) {
+          setMenuList(Object.values(menuData) as MenuItem[]);
+        } else {
+          setMenuList(DEFAULT_MENU_ITEMS);
+        }
+      } catch (err) {
+        console.error("Ma'lumotlarni yuklashda xatolik:", err);
+      }
+    };
+
+    fetchAllData();
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -197,12 +220,12 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     localStorage.removeItem('zafar_admin_auth');
   };
 
-  // Custom Modal ko'rsatish yordamchisi
   const showSuccessModal = (message: string) => {
     setNotification({ isOpen: true, message });
   };
 
-  const handleAddDish = (e: React.FormEvent) => {
+  // ── FIREBASE-GA YANGI TAOM QO'SHISH ──
+  const handleAddDish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDish.nameUz || !newDish.price) return;
 
@@ -221,43 +244,63 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
       meta: newDish.meta || '🔥 • Yangi'
     };
 
-    const updated = [newDishObj, ...menuList];
-    setMenuList(updated);
-    localStorage.setItem('zafar_menu', JSON.stringify(updated));
+    try {
+      await fetch(`${DB_URL}/menu/${newDishObj.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newDishObj)
+      });
 
-    // Formani tozalash
-    setNewDish({ nameUz: '', nameRu: '', nameEn: '', price: '', cat: 'milliy', img: '', descUz: '', descRu: '', descEn: '', meta: '🔥 • Yangi' });
-    
-    // Alert o'rniga Custom Modal ishlatiladi
-    showSuccessModal("Yangi taom menyuga muvaffaqiyatli qo'shildi!");
+      const updated = [newDishObj, ...menuList];
+      setMenuList(updated);
+
+      setNewDish({ nameUz: '', nameRu: '', nameEn: '', price: '', cat: 'milliy', img: '', descUz: '', descRu: '', descEn: '', meta: '🔥 • Yangi' });
+      showSuccessModal("Yangi taom menyuga muvaffaqiyatli qo'shildi!");
+    } catch (err) {
+      console.error("Taom qo'shishda xatolik:", err);
+    }
   };
 
-  const handleDeleteDish = (id: string) => {
+  // ── FIREBASE-DAN TAOM O'CHIRISH ──
+  const handleDeleteDish = async (id: string) => {
     if (!window.confirm("Bu taomni menyudan o'chirmoqchimisiz?")) return;
-    const updated = menuList.filter(item => item.id !== id);
-    setMenuList(updated);
-    localStorage.setItem('zafar_menu', JSON.stringify(updated));
-    showSuccessModal("Taom menyudan muvaffaqiyatli o'chirildi!");
+    try {
+      await fetch(`${DB_URL}/menu/${id}.json`, {
+        method: 'DELETE'
+      });
+      const updated = menuList.filter(item => item.id !== id);
+      setMenuList(updated);
+      showSuccessModal("Taom menyudan muvaffaqiyatli o'chirildi!");
+    } catch (err) {
+      console.error("Taomni o'chirishda xatolik:", err);
+    }
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
+  // ── FIREBASE-DA TAOM TAHRIRLASH ──
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingDish) return;
 
-    // Agar RU yoki EN ta'riflari bo'shatib qo'yilgan bo'lsa, UZ nunkini yuklab yuborish
     const updatedDish = {
       ...editingDish,
       descRu: editingDish.descRu || editingDish.descUz,
       descEn: editingDish.descEn || editingDish.descUz
     };
 
-    const updated = menuList.map(item => item.id === editingDish.id ? updatedDish : item);
-    setMenuList(updated);
-    localStorage.setItem('zafar_menu', JSON.stringify(updated));
-    setEditingDish(null);
+    try {
+      await fetch(`${DB_URL}/menu/${editingDish.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedDish)
+      });
 
-    // Alert o'rniga Custom Modal ishlatiladi
-    showSuccessModal("Taom ma'lumotlari muvaffaqiyatli yangilandi!");
+      const updated = menuList.map(item => item.id === editingDish.id ? updatedDish : item);
+      setMenuList(updated);
+      setEditingDish(null);
+      showSuccessModal("Taom ma'lumotlari muvaffaqiyatli yangilandi!");
+    } catch (err) {
+      console.error("Tahrirlashni saqlashda xatolik:", err);
+    }
   };
 
   const totalRevenue = orders.reduce((sum, item) => sum + item.total, 0);
@@ -452,7 +495,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   </div>
                 </div>
 
-                {/* ── OPISANIYE (TA'RIF/TAVSIF) MAYDONLARI ── */}
                 <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label>Taom Ta'rifi / Tavsifi (UZ) *</label>
@@ -515,7 +557,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         )}
       </div>
 
-      {/* TAHRIRLASH (MODAL) OYNASI (Ta'rifni tahrirlash qo'shilgan) */}
       {editingDish && (
         <div className="admin-modal-overlay">
           <div className="admin-modal-box" style={{ maxWidth: '440px' }}>
@@ -534,7 +575,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                 <input style={{ padding: '10px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0' }} type="text" value={editingDish.img} onChange={e => setEditingDish({...editingDish, img: e.target.value})} />
               </div>
 
-              {/* TA'RIFLARNI TAHRIRLASH MAYDONLARI */}
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                 <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Tavsifi / Ta'rifi (UZ)</label>
                 <textarea 
@@ -569,7 +609,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         </div>
       )}
 
-      {/* ── CUSTOM NOTIFICATION MODAL (Alert o'rniga bildirishnoma) ── */}
       {notification.isOpen && (
         <div className="admin-modal-overlay" style={{ zIndex: 9999 }}>
           <div className="admin-modal-box success-notification" style={{ textAlign: 'center', maxWidth: '360px', border: '1px solid #C9933A' }}>

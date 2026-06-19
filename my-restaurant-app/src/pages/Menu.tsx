@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { T } from '../translations';
 
+// ⚠️ BU YERGA O'ZINGIZNING FIREBASE DATABASE URL-INGIZNI QO'YING (oxirida / belgisi bo'lmasin!)
+const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
+
 interface CartItem {
   id: string;
   nameUz: string;
@@ -135,14 +138,35 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
+  // ── FIREBASE ORQALI MENYUNI YUKLASH VA SINXRONLASH ──
   useEffect(() => {
-    const savedMenu = localStorage.getItem('zafar_menu');
-    if (savedMenu) {
-      setMenuItems(JSON.parse(savedMenu));
-    } else {
-      localStorage.setItem('zafar_menu', JSON.stringify(DEFAULT_MENU_ITEMS));
-      setMenuItems(DEFAULT_MENU_ITEMS);
-    }
+    const fetchMenu = async () => {
+      try {
+        const response = await fetch(`${DB_URL}/menu.json`);
+        const data = await response.json();
+        if (data) {
+          // Firebase'da obyekt holida saqlangan bo'lsa uni massivga o'giramiz
+          const itemsArray = Object.values(data) as MenuItem[];
+          setMenuItems(itemsArray);
+        } else {
+          // Agar bazada menyu bo'sh bo'lsa, birlamchi menyuni yuklab bazaga yozib qo'yamiz
+          const initialMenu: { [key: string]: MenuItem } = {};
+          DEFAULT_MENU_ITEMS.forEach(item => {
+            initialMenu[item.id] = item;
+          });
+          await fetch(`${DB_URL}/menu.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(initialMenu)
+          });
+          setMenuItems(DEFAULT_MENU_ITEMS);
+        }
+      } catch (err) {
+        console.error("Menyuni yuklashda xatolik:", err);
+        setMenuItems(DEFAULT_MENU_ITEMS);
+      }
+    };
+    fetchMenu();
   }, []);
 
   useEffect(() => {
@@ -171,7 +195,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     return item.nameUz;
   };
 
-  // ── DINAMIK TAVSIF/OPISANIYENI TILGA MOS RAVIDA CHIQARISH ──
   const getDishDesc = (item: MenuItem) => {
     if (lang === 'ru') return item.descRu || item.descUz || t[item.descKey] || 'Описание отсутствует.';
     if (lang === 'en') return item.descEn || item.descUz || t[item.descKey] || 'No description available.';
@@ -244,16 +267,20 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       });
       const data = await response.json();
       if (data.ok) {
-        const savedOrders = JSON.parse(localStorage.getItem('zafar_orders') || '[]');
+        // ── GOOGLE CLOUD MA'LUMOTLAR BAZASIGA SAQLASH ──
         const newOrderObj = {
-          id: 'ord_' + Date.now(),
           customerName,
           customerPhone,
           items: cart,
           total,
           date: new Date().toLocaleString()
         };
-        localStorage.setItem('zafar_orders', JSON.stringify([...savedOrders, newOrderObj]));
+
+        await fetch(`${DB_URL}/orders.json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newOrderObj)
+        });
 
         setOrderSuccess(true);
         setTimeout(() => {
@@ -372,7 +399,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                       <div className="card-cat">{sectionTitleMap[cat]}</div>
                       <div className="card-name">{getDishName(item)}</div>
                       
-                      {/* TAVSIF/OPISANIYE CHIQARILADIGAN JOY */}
                       <p className="card-desc">{getDishDesc(item)}</p>
                       
                       <div className="card-meta">{item.meta}</div>
