@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  TrendingUp, 
+  ShoppingBag, 
+  Calendar, 
+  Utensils, 
+  Plus, 
+  PlusCircle, 
+  Edit, 
+  Trash2, 
+  CheckCircle2, 
+  LogOut 
+} from 'lucide-react';
 
-// ⚠️ BU YERGA O'ZINGIZNING FIREBASE DATABASE URL-INGIZNI QO'YING (oxirida / belgisi bo'lmasin!)
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
 interface CartItem {
@@ -163,14 +174,12 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     message: ''
   });
 
-  // ── FIREBASE BAZADAN BARCHA MA'LUMOTLARNI SINXRON YUKLASH ──
   useEffect(() => {
     const adminAuth = localStorage.getItem('zafar_admin_auth');
     if (adminAuth === 'true') setIsLoggedIn(true);
 
     const fetchAllData = async () => {
       try {
-        // 1. Buyurtmalarni yuklash
         const ordersRes = await fetch(`${DB_URL}/orders.json`);
         const ordersData = await ordersRes.json();
         const fetchedOrders = ordersData ? Object.keys(ordersData).map(key => ({
@@ -179,7 +188,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setOrders(fetchedOrders);
 
-        // 2. Stol band qilishlarni yuklash
         const resRes = await fetch(`${DB_URL}/reservations.json`);
         const resData = await resRes.json();
         const fetchedRes = resData ? Object.keys(resData).map(key => ({
@@ -188,7 +196,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setReservations(fetchedRes);
 
-        // 3. Menyu ro'yxatini yuklash
         const menuRes = await fetch(`${DB_URL}/menu.json`);
         const menuData = await menuRes.json();
         if (menuData) {
@@ -224,7 +231,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     setNotification({ isOpen: true, message });
   };
 
-  // ── FIREBASE-GA YANGI TAOM QO'SHISH ──
   const handleAddDish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDish.nameUz || !newDish.price) return;
@@ -261,7 +267,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     }
   };
 
-  // ── FIREBASE-DAN TAOM O'CHIRISH ──
   const handleDeleteDish = async (id: string) => {
     if (!window.confirm("Bu taomni menyudan o'chirmoqchimisiz?")) return;
     try {
@@ -276,7 +281,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
     }
   };
 
-  // ── FIREBASE-DA TAOM TAHRIRLASH ──
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingDish) return;
@@ -339,16 +343,18 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         </div>
         <div className="admin-header-right" style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
           <button className="back-site-btn" onClick={onGoHome} style={{ margin: 0, textDecoration: 'none', color: '#F5EFE0', background: 'rgba(255,255,255,0.06)', padding: '8px 16px', border: '1px solid rgba(255,255,255,0.1)' }}>🌐 Saytni ko'rish</button>
-          <button className="logout-btn" onClick={handleLogout}>🚪 Chiqish</button>
+          <button className="logout-btn" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <LogOut size={16} strokeWidth={1.5} /> Chiqish
+          </button>
         </div>
       </header>
 
       <div className="admin-tabs">
-        <button className={`admin-tab ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-          📊 Statistika va Buyurtmalar
+        <button className={`admin-tab ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <TrendingUp size={18} strokeWidth={1.5} /> Statistika va Buyurtmalar
         </button>
-        <button className={`admin-tab ${activeTab === 'menuEdit' ? 'active' : ''}`} onClick={() => setActiveTab('menuEdit')}>
-          🍽️ Menyuni Tahrirlash ({menuList.length})
+        <button className={`admin-tab ${activeTab === 'menuEdit' ? 'active' : ''}`} onClick={() => setActiveTab('menuEdit')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Utensils size={18} strokeWidth={1.5} /> Menyuni Tahrirlash ({menuList.length})
         </button>
       </div>
 
@@ -357,21 +363,21 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
           <div className="dashboard-content">
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-icon">📦</div>
+                <div className="stat-icon"><ShoppingBag size={32} strokeWidth={1.5} color="var(--gold)" /></div>
                 <div>
                   <div className="stat-val">{orders.length} ta</div>
                   <div className="stat-lbl">Umumiy Buyurtmalar</div>
                 </div>
               </div>
               <div className="stat-card gold-card">
-                <div className="stat-icon">💰</div>
+                <div className="stat-icon"><TrendingUp size={32} strokeWidth={1.5} color="#F0CC90" /></div>
                 <div>
                   <div className="stat-val">{totalRevenue.toLocaleString()} so'm</div>
                   <div className="stat-lbl">Jami Tushum</div>
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon">🍽️</div>
+                <div className="stat-icon"><Calendar size={32} strokeWidth={1.5} color="var(--gold)" /></div>
                 <div>
                   <div className="stat-val">{reservations.length} ta</div>
                   <div className="stat-lbl">Stol Band Qilishlar</div>
@@ -382,7 +388,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
             <div className="tables-container">
               <div className="admin-table-panel">
                 <div className="panel-head">
-                  <h3>🛒 So'nggi Buyurtmalar</h3>
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ShoppingBag size={20} strokeWidth={1.5} color="var(--gold)" /> So'nggi Buyurtmalar
+                  </h3>
                   <span>{orders.length} ta buyurtma</span>
                 </div>
                 {orders.length === 0 ? (
@@ -421,7 +429,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
 
               <div className="admin-table-panel" style={{ marginTop: '32px' }}>
                 <div className="panel-head">
-                  <h3>📅 Stol Band Qilish Arizalari</h3>
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Calendar size={20} strokeWidth={1.5} color="var(--gold)" /> Stol Band Qilish Arizalari
+                  </h3>
                   <span>{reservations.length} ta ariza</span>
                 </div>
                 {reservations.length === 0 ? (
@@ -460,7 +470,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         {activeTab === 'menuEdit' && (
           <div className="menu-edit-content">
             <div className="admin-form-panel">
-              <h3>＋ Yangi Taom Qo'shish</h3>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PlusCircle size={20} strokeWidth={1.5} color="var(--gold)" /> Yangi Taom Qo'shish
+              </h3>
               <form onSubmit={handleAddDish} className="add-dish-form">
                 <div className="form-grid-3">
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -526,7 +538,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   </div>
                 </div>
 
-                <button type="submit" className="admin-btn-gold" style={{ width: 'fit-content', marginTop: '20px' }}>＋ Menyuga Qo'shish</button>
+                <button type="submit" className="admin-btn-gold" style={{ width: 'fit-content', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Plus size={16} strokeWidth={2} /> Menyuga Qo'shish
+                </button>
               </form>
             </div>
 
@@ -546,8 +560,12 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                       <div className="price">{dish.price.toLocaleString()} so'm</div>
                     </div>
                     <div className="dish-actions">
-                      <button className="edit-btn" onClick={() => setEditingDish(dish)}>✏️ Tahrirlash</button>
-                      <button className="del-btn" onClick={() => handleDeleteDish(dish.id)}>🗑️ O'chirish</button>
+                      <button className="edit-btn" onClick={() => setEditingDish(dish)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <Edit size={14} strokeWidth={1.5} /> Tahrirlash
+                      </button>
+                      <button className="del-btn" onClick={() => handleDeleteDish(dish.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <Trash2 size={14} strokeWidth={1.5} /> O'chirish
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -560,7 +578,9 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
       {editingDish && (
         <div className="admin-modal-overlay">
           <div className="admin-modal-box" style={{ maxWidth: '440px' }}>
-            <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', marginBottom: '18px' }}>✏️ Taom tahrirlash</h3>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--gold)', marginBottom: '18px', fontSize: '1.2rem', fontWeight: 'bold' }}>
+              <Edit size={20} strokeWidth={1.5} /> Taom tahrirlash
+            </span>
             <form onSubmit={handleSaveEdit}>
               <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                 <label style={{ fontSize: '0.75rem', color: '#7A6E5E' }}>Taom nomi (UZ)</label>
@@ -612,7 +632,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
       {notification.isOpen && (
         <div className="admin-modal-overlay" style={{ zIndex: 9999 }}>
           <div className="admin-modal-box success-notification" style={{ textAlign: 'center', maxWidth: '360px', border: '1px solid #C9933A' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>✅</div>
+            <div style={{ color: 'var(--gold)', marginBottom: '10px', display: 'flex', justifyContent: 'center' }}><CheckCircle2 size={48} strokeWidth={1.5} /></div>
             <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.35rem', color: '#C9933A', marginBottom: '10px' }}>Muvaffaqiyatli!</h4>
             <p style={{ fontSize: '0.9rem', color: '#F5EFE0', marginBottom: '20px', lineHeight: '1.5' }}>{notification.message}</p>
             <button 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { T } from '../translations';
+import { Star, Leaf, ChefHat, MapPin, Phone, Clock, UtensilsCrossed, CheckCircle2 } from 'lucide-react';
 
-// ⚠️ BU YERGA O'ZINGIZNING FIREBASE DATABASE URL-INGIZNI QO'YING (oxirida / belgisi bo'lmasin!)
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
 interface HomeProps {
@@ -103,7 +103,6 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
       });
       const data = await response.json();
       if (data.ok) {
-        // ── GOOGLE CLOUD MA'LUMOTLAR BAZASIGA SAQLASH ──
         const newRes = {
           name, phone, date, time, guests, wish,
           createdAt: new Date().toISOString()
@@ -161,8 +160,10 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
         <div className="hero-right">
           <img className="hero-img" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80" alt="Restoran" />
           <div className="hero-img-overlay"></div>
-          <div className="hero-badge">
-            <span className="hero-badge-num">⭐ 4.9</span>
+          <div className="hero-badge" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <span className="hero-badge-num" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Star size={20} fill="currentColor" strokeWidth={1.5} /> 4.9
+            </span>
             <span className="hero-badge-text">{t.badge_rating}</span>
           </div>
         </div>
@@ -184,14 +185,14 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
           <p className="about-text">{t.about_p2}</p>
           <div className="about-features">
             <div className="feature-item">
-              <div className="feature-icon">🌿</div>
+              <div className="feature-icon"><Leaf size={24} strokeWidth={1.5} color="var(--gold)" /></div>
               <div>
                 <div className="feature-title">{t.feat1_title}</div>
                 <div className="feature-desc">{t.feat1_desc}</div>
               </div>
             </div>
             <div className="feature-item">
-              <div className="feature-icon">👨‍🍳</div>
+              <div className="feature-icon"><ChefHat size={24} strokeWidth={1.5} color="var(--gold)" /></div>
               <div>
                 <div className="feature-title">{t.feat2_title}</div>
                 <div className="feature-desc">{t.feat2_desc}</div>
@@ -444,21 +445,21 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
           <p>{t.res_desc}</p>
           <div className="contact-items">
             <div className="contact-item">
-              <div className="contact-icon">📍</div>
+              <div className="contact-icon"><MapPin size={20} strokeWidth={1.5} color="#fff" /></div>
               <div>
                 <div className="contact-label">{t.contact_address_label}</div>
                 <div className="contact-value">{t.contact_address_val}</div>
               </div>
             </div>
             <div className="contact-item">
-              <div className="contact-icon">📞</div>
+              <div className="contact-icon"><Phone size={20} strokeWidth={1.5} color="#fff" /></div>
               <div>
                 <div className="contact-label">{t.contact_phone_label}</div>
                 <div className="contact-value">+998 71 234 56 78</div>
               </div>
             </div>
             <div className="contact-item">
-              <div className="contact-icon">🕐</div>
+              <div className="contact-icon"><Clock size={20} strokeWidth={1.5} color="#fff" /></div>
               <div>
                 <div className="contact-label">{t.contact_hours_label}</div>
                 <div className="contact-value">{t.contact_hours_val}</div>
@@ -467,16 +468,16 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
           </div>
         </div>
         <div className="reservation-form fade-up" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '28px', textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem' }}>🍽️</div>
+          <div style={{ color: 'var(--gold)', marginBottom: '10px' }}><UtensilsCrossed size={48} strokeWidth={1.5} /></div>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.8rem', color: 'var(--cream)' }}>{t.form_title}</h3>
           <p style={{ color: 'rgba(245,239,224,0.5)', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: '320px' }}>{t.form_subtitle}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(201,147,58,0.2)' }}>
-              <span style={{ fontSize: '1.2rem' }}>📍</span>
+              <span style={{ color: 'var(--gold)', display: 'flex' }}><MapPin size={18} strokeWidth={1.5} /></span>
               <span style={{ fontSize: '0.88rem', color: 'rgba(245,239,224,0.7)' }}>{t.contact_address_val}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(201,147,58,0.2)' }}>
-              <span style={{ fontSize: '1.2rem' }}>🕐</span>
+              <span style={{ color: 'var(--gold)', display: 'flex' }}><Clock size={18} strokeWidth={1.5} /></span>
               <span style={{ fontSize: '0.88rem', color: 'rgba(245,239,224,0.7)' }}>{t.contact_hours_val}</span>
             </div>
           </div>
@@ -569,7 +570,7 @@ const Home: React.FC<HomeProps> = ({ lang, setPage }) => {
               </div>
             ) : (
               <div className="res-success show">
-                <div className="res-success-icon">✅</div>
+                <div className="res-success-icon" style={{ color: '#3A7A3A', marginBottom: '16px' }}><CheckCircle2 size={56} strokeWidth={1.5} /></div>
                 <h4>{lang === 'uz' ? 'Stol Band Qilindi!' : lang === 'ru' ? 'Стол Забронирован!' : 'Table Reserved!'}</h4>
                 <p>{lang === 'uz' ? 'Tez orada siz bilan bog\'lanamiz.' : lang === 'ru' ? 'Мы свяжемся с вами в ближайшее время.' : 'We will contact you shortly.'}</p>
               </div>

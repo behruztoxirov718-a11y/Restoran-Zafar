@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { T } from '../translations';
+import { 
+  Utensils, 
+  ChefHat, 
+  Flame, 
+  Soup, 
+  Salad, 
+  Croissant, 
+  Coffee, 
+  Cake, 
+  Search, 
+  Heart, 
+  Check, 
+  Plus, 
+  ShoppingCart, 
+  Minus, 
+  Send, 
+  CheckCircle2 
+} from 'lucide-react';
 
-// ⚠️ BU YERGA O'ZINGIZNING FIREBASE DATABASE URL-INGIZNI QO'YING (oxirida / belgisi bo'lmasin!)
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
 
 interface CartItem {
@@ -138,18 +155,15 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
-  // ── FIREBASE ORQALI MENYUNI YUKLASH VA SINXRONLASH ──
   useEffect(() => {
     const fetchMenu = async () => {
       try {
         const response = await fetch(`${DB_URL}/menu.json`);
         const data = await response.json();
         if (data) {
-          // Firebase'da obyekt holida saqlangan bo'lsa uni massivga o'giramiz
           const itemsArray = Object.values(data) as MenuItem[];
           setMenuItems(itemsArray);
         } else {
-          // Agar bazada menyu bo'sh bo'lsa, birlamchi menyuni yuklab bazaga yozib qo'yamiz
           const initialMenu: { [key: string]: MenuItem } = {};
           DEFAULT_MENU_ITEMS.forEach(item => {
             initialMenu[item.id] = item;
@@ -267,7 +281,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       });
       const data = await response.json();
       if (data.ok) {
-        // ── GOOGLE CLOUD MA'LUMOTLAR BAZASIGA SAQLASH ──
         const newOrderObj = {
           customerName,
           customerPhone,
@@ -323,34 +336,34 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
 
       <div className="cat-bar">
         <button className={`cat-btn ${activeCat === 'all' ? 'active' : ''}`} onClick={() => setActiveCat('all')}>
-          <span>🍽️</span> <span>{t.cat_all}</span>
+          <Utensils size={18} strokeWidth={1.5} /> <span>{t.cat_all}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'milliy' ? 'active' : ''}`} onClick={() => setActiveCat('milliy')}>
-          <span>🫕</span> <span>{t.cat_milliy}</span>
+          <ChefHat size={18} strokeWidth={1.5} /> <span>{t.cat_milliy}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'grill' ? 'active' : ''}`} onClick={() => setActiveCat('grill')}>
-          <span>🔥</span> <span>{t.cat_grill}</span>
+          <Flame size={18} strokeWidth={1.5} /> <span>{t.cat_grill}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'shorva' ? 'active' : ''}`} onClick={() => setActiveCat('shorva')}>
-          <span>🍲</span> <span>{t.cat_shorva}</span>
+          <Soup size={18} strokeWidth={1.5} /> <span>{t.cat_shorva}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'salat' ? 'active' : ''}`} onClick={() => setActiveCat('salat')}>
-          <span>🥗</span> <span>{t.cat_salat}</span>
+          <Salad size={18} strokeWidth={1.5} /> <span>{t.cat_salat}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'non' ? 'active' : ''}`} onClick={() => setActiveCat('non')}>
-          <span>🫓</span> <span>{t.cat_non}</span>
+          <Croissant size={18} strokeWidth={1.5} /> <span>{t.cat_non}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'ichimlik' ? 'active' : ''}`} onClick={() => setActiveCat('ichimlik')}>
-          <span>🍵</span> <span>{t.cat_ichimlik}</span>
+          <Coffee size={18} strokeWidth={1.5} /> <span>{t.cat_ichimlik}</span>
         </button>
         <button className={`cat-btn ${activeCat === 'shirinlik' ? 'active' : ''}`} onClick={() => setActiveCat('shirinlik')}>
-          <span>🍮</span> <span>{t.cat_shirinlik}</span>
+          <Cake size={18} strokeWidth={1.5} /> <span>{t.cat_shirinlik}</span>
         </button>
       </div>
 
       <div className="search-wrap">
         <div className="search-box">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon" style={{ display: 'flex', color: 'var(--muted)' }}><Search size={18} strokeWidth={1.5} /></span>
           <input 
             type="text" 
             placeholder={t.search_placeholder} 
@@ -370,14 +383,20 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
             salat: t.sec_salat, non: t.sec_non, ichimlik: t.sec_ichimlik, shirinlik: t.sec_shirinlik
           };
 
-          const sectionEmojiMap: { [key: string]: string } = {
-            milliy: '🫕', grill: '🔥', shorva: '🍲', salat: '🥗', non: '🫓', ichimlik: '🍵', shirinlik: '🍮'
+          const sectionEmojiMap: { [key: string]: React.ReactNode } = {
+            milliy: <ChefHat size={20} strokeWidth={1.5} />, 
+            grill: <Flame size={20} strokeWidth={1.5} />, 
+            shorva: <Soup size={20} strokeWidth={1.5} />, 
+            salat: <Salad size={20} strokeWidth={1.5} />, 
+            non: <Croissant size={20} strokeWidth={1.5} />, 
+            ichimlik: <Coffee size={20} strokeWidth={1.5} />, 
+            shirinlik: <Cake size={20} strokeWidth={1.5} />
           };
 
           return (
             <section key={cat} className="menu-section fade-up">
               <div className="section-header">
-                <span className="section-emoji">{sectionEmojiMap[cat]}</span>
+                <span className="section-emoji" style={{ display: 'flex', color: 'var(--gold)' }}>{sectionEmojiMap[cat]}</span>
                 <h2 className="section-title">{sectionTitleMap[cat]}</h2>
                 <div className="section-header-line"></div>
               </div>
@@ -390,8 +409,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                           {item.badgeKey ? t[item.badgeKey] : item.badge.toUpperCase()}
                         </span>
                       )}
-                      <button className={`card-like ${likes[item.id] ? 'liked' : ''}`} onClick={() => toggleLike(item.id)}>
-                        {likes[item.id] ? '❤️' : '🤍'}
+                      <button className={`card-like ${likes[item.id] ? 'liked' : ''}`} onClick={() => toggleLike(item.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Heart size={18} strokeWidth={1.5} fill={likes[item.id] ? "var(--rust)" : "none"} color={likes[item.id] ? "var(--rust)" : "var(--muted)"} />
                       </button>
                       <img className="card-img" src={item.img} alt={getDishName(item)} />
                     </div>
@@ -411,7 +430,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                           onClick={() => handleAddToCart(item)}
                           style={addedStatus[item.id] ? { backgroundColor: '#3A7A3A', color: '#fff' } : {}}
                         >
-                          <span>{addedStatus[item.id] ? '✓' : '＋'}</span> 
+                          <span style={{ display: 'inline-flex', alignItems: 'center' }}>{addedStatus[item.id] ? <Check size={16} strokeWidth={2} /> : <Plus size={16} strokeWidth={2} />}</span> 
                           <span>{addedStatus[item.id] ? (lang === 'uz' ? "Qo'shildi" : lang === 'ru' ? "Добавлено" : "Added") : t.add_btn}</span>
                         </button>
                       </div>
@@ -425,8 +444,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       </main>
 
       {totalItemsCount > 0 && (
-        <button id="cart-float" className="show" onClick={() => setIsCartOpen(true)}>
-          🛒 <span>{t.cart_label}</span>
+        <button id="cart-float" className="show" onClick={() => setIsCartOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
+          <ShoppingCart size={18} strokeWidth={1.5} /> <span>{t.cart_label}</span>
           <span className="cart-count">{totalItemsCount}</span>
         </button>
       )}
@@ -439,8 +458,8 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
               <button className="cart-close" onClick={() => setIsCartOpen(false)}>✕</button>
             </div>
             {cart.length === 0 ? (
-              <div className="cart-empty">
-                <div className="cart-empty-icon">🛒</div>
+              <div className="cart-empty" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="cart-empty-icon" style={{ color: 'var(--muted)', marginBottom: '10px' }}><ShoppingCart size={40} strokeWidth={1.5} /></div>
                 <p>{t.cart_empty}</p>
               </div>
             ) : (
@@ -519,13 +538,13 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                   />
                 </div>
                 <p style={{ color: 'var(--rust)', fontSize: '0.8rem', marginBottom: '8px' }}>{orderError}</p>
-                <button className="order-send-btn" disabled={isSendingOrder} onClick={handleOrderSubmit}>
-                  <span>✈️</span> <span>{isSendingOrder ? (lang === 'uz' ? 'Yuborilmoqda...' : 'Отправка...') : (lang === 'uz' ? 'Buyurtma Yuborish' : 'Отправить заказ')}</span>
+                <button className="order-send-btn" disabled={isSendingOrder} onClick={handleOrderSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <Send size={16} strokeWidth={1.5} /> <span>{isSendingOrder ? (lang === 'uz' ? 'Yuborilmoqda...' : 'Отправка...') : (lang === 'uz' ? 'Buyurtma Yuborish' : 'Отправить заказ')}</span>
                 </button>
               </div>
             ) : (
               <div className="order-success show">
-                <div className="order-success-icon">✅</div>
+                <div className="order-success-icon" style={{ color: '#3A7A3A', marginBottom: '18px' }}><CheckCircle2 size={56} strokeWidth={1.5} /></div>
                 <h4>{lang === 'uz' ? 'Buyurtma Qabul Qilindi!' : 'Заказ Принят!'}</h4>
                 <p>{lang === 'uz' ? 'Operatorimiz tez orada siz bilan bog\'lanadi.' : 'Наш оператор скоро свяжется с вами.'}</p>
               </div>

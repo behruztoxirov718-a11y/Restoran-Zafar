@@ -4,6 +4,7 @@ import Menu from './pages/Menu';
 import Loader from './components/Loader';
 import Admin from './pages/Admin';
 import { T } from './translations';
+import { Sun, Moon, Lock, Send, ArrowUp } from 'lucide-react';
 
 interface CartItem {
   id: string;
@@ -14,6 +15,21 @@ interface CartItem {
   img: string;
   qty: number;
 }
+
+// ── CUSTOM LOGO SVG COMPONENTLARI (Lucide brand ikonkalar o'rniga xavfsiz variant) ──
+const FacebookIcon: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const InstagramIcon: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-instagram">
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -120,16 +136,20 @@ const App: React.FC = () => {
               <button className={`lang-btn ${lang === 'ru' ? 'active' : ''}`} onClick={() => setLang('ru')}>RU</button>
               <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             </div>
-            <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>{isDark ? '☀️' : '🌙'}</button>
             
-            {/* ADMIN PANELGA KIRISH TUGMASI (Katta ekranlar uchun, lock-nav-btn klassi bilan) */}
+            {/* SUN / MOON ICONKASI */}
+            <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>
+              {isDark ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+            </button>
+            
+            {/* ADMIN PANELGA KIRISH TUGMASI */}
             <button 
               className="theme-toggle lock-nav-btn" 
               title="Admin Panel" 
               onClick={() => handlePageChange('admin')}
-              style={{ fontSize: '1.1rem', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)' }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)' }}
             >
-              🔒
+              <Lock size={16} strokeWidth={1.5} color="var(--gold)" />
             </button>
 
             <span 
@@ -174,8 +194,8 @@ const App: React.FC = () => {
             </li>
             {/* MOBIL QURILMALARDA ADMIN PANELGA KIRISH SHU YERDAN */}
             <li>
-              <span style={{ display: 'block', padding: '15px 28px', cursor: 'pointer', color: 'var(--gold)' }} onClick={() => handlePageChange('admin')}>
-                🔒 Admin Panel
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '15px 28px', cursor: 'pointer', color: 'var(--gold)' }} onClick={() => handlePageChange('admin')}>
+                <Lock size={16} strokeWidth={1.5} /> Admin Panel
               </span>
             </li>
           </ul>
@@ -205,9 +225,9 @@ const App: React.FC = () => {
             <div className="footer-brand-name">Zafar <span>Dasturxon</span></div>
             <p className="footer-tagline">{t.footer_tagline}</p>
             <div className="footer-social">
-              <a href="#" className="social-btn">📘</a>
-              <a href="#" className="social-btn">📸</a>
-              <a href="#" className="social-btn">✈️</a>
+              <a href="#" className="social-btn"><FacebookIcon /></a>
+              <a href="#" className="social-btn"><InstagramIcon /></a>
+              <a href="#" className="social-btn"><Send size={18} strokeWidth={1.5} /></a>
             </div>
           </div>
           <div>
@@ -248,7 +268,7 @@ const App: React.FC = () => {
       {/* SCROLL TO TOP */}
       {showScrollTop && (
         <button id="scrollTop" className="show" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          ↑
+          <ArrowUp size={20} strokeWidth={2} />
         </button>
       )}
     </>
