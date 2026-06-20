@@ -16,7 +16,7 @@ interface CartItem {
   qty: number;
 }
 
-// ── CUSTOM LOGO SVG COMPONENTLARI (Lucide brand ikonkalar o'rniga xavfsiz variant) ──
+// ── CUSTOM LOGO SVG COMPONENTLARI ──
 const FacebookIcon: React.FC = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -137,12 +137,10 @@ const App: React.FC = () => {
               <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             </div>
             
-            {/* SUN / MOON ICONKASI */}
             <button className="theme-toggle" id="themeToggle" onClick={toggleTheme}>
               {isDark ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
             </button>
             
-            {/* ADMIN PANELGA KIRISH TUGMASI */}
             <button 
               className="theme-toggle lock-nav-btn" 
               title="Admin Panel" 
@@ -163,7 +161,7 @@ const App: React.FC = () => {
         </nav>
       )}
 
-      {/* MOBILE DRAWER - FAQAT ADMIN SAHIFASIDA BO'LMAGANDA KO'RINADI */}
+      {/* MOBILE DRAWER */}
       {currentPage !== 'admin' && (
         <div className={`mobile-drawer ${isDrawerOpen ? 'open' : ''}`}>
           <ul>
@@ -192,7 +190,6 @@ const App: React.FC = () => {
                 {t.nav_contact}
               </a>
             </li>
-            {/* MOBIL QURILMALARDA ADMIN PANELGA KIRISH SHU YERDAN */}
             <li>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '15px 28px', cursor: 'pointer', color: 'var(--gold)' }} onClick={() => handlePageChange('admin')}>
                 <Lock size={16} strokeWidth={1.5} /> Admin Panel
@@ -218,52 +215,54 @@ const App: React.FC = () => {
         <Admin onGoHome={() => handlePageChange('home')} />
       )}
 
-      {/* FOOTER */}
-      <footer>
-        <div className="footer-top">
-          <div>
-            <div className="footer-brand-name">Zafar <span>Dasturxon</span></div>
-            <p className="footer-tagline">{t.footer_tagline}</p>
-            <div className="footer-social">
-              <a href="#" className="social-btn"><FacebookIcon /></a>
-              <a href="#" className="social-btn"><InstagramIcon /></a>
-              <a href="#" className="social-btn"><Send size={18} strokeWidth={1.5} /></a>
+      {/* ── 🛠️ YANGILANGAN: FOOTER FAQAT ADMIN SAHIFASIDA BO'LMAGANDA KO'RINADI ── */}
+      {currentPage !== 'admin' && (
+        <footer>
+          <div className="footer-top">
+            <div>
+              <div className="footer-brand-name">Zafar <span>Dasturxon</span></div>
+              <p className="footer-tagline">{t.footer_tagline}</p>
+              <div className="footer-social">
+                <a href="#" className="social-btn"><FacebookIcon /></a>
+                <a href="#" className="social-btn"><InstagramIcon /></a>
+                <a href="#" className="social-btn"><Send size={18} strokeWidth={1.5} /></a>
+              </div>
+            </div>
+            <div>
+              <div className="footer-heading">{t.footer_pages}</div>
+              <ul className="footer-links">
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('home')}>{t.nav_about}</span></li>
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.nav_menu}</span></li>
+                <li><a href="#reviews" onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>{t.nav_reviews}</a></li>
+                <li><a href="#reservation" onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>{t.nav_contact}</a></li>
+              </ul>
+            </div>
+            <div>
+              <div className="footer-heading">{t.footer_dishes}</div>
+              <ul className="footer-links">
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_milliy}</span></li>
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_grill}</span></li>
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_shorva}</span></li>
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_shirinlik}</span></li>
+                <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_ichimlik}</span></li>
+              </ul>
+            </div>
+            <div>
+              <div className="footer-heading">{t.nav_contact}</div>
+              <ul className="footer-links">
+                <li><a href="#">Amir Temur 15, Toshkent</a></li>
+                <li><a href="tel:+998712345678">+998 71 234 56 78</a></li>
+                <li><a href="mailto:info@zafar.uz">info@zafar.uz</a></li>
+                <li><a href="#">10:00 – 23:00</a></li>
+              </ul>
             </div>
           </div>
-          <div>
-            <div className="footer-heading">{t.footer_pages}</div>
-            <ul className="footer-links">
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('home')}>{t.nav_about}</span></li>
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.nav_menu}</span></li>
-              <li><a href="#reviews" onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>{t.nav_reviews}</a></li>
-              <li><a href="#reservation" onClick={(e) => { e.preventDefault(); handlePageChange('home'); setTimeout(() => document.getElementById('reservation')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>{t.nav_contact}</a></li>
-            </ul>
+          <div className="footer-bottom">
+            <span>{t.footer_copy}</span>
+            <span>{t.footer_credit}</span>
           </div>
-          <div>
-            <div className="footer-heading">{t.footer_dishes}</div>
-            <ul className="footer-links">
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_milliy}</span></li>
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_grill}</span></li>
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_shorva}</span></li>
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_shirinlik}</span></li>
-              <li><span style={{ cursor: 'pointer' }} onClick={() => handlePageChange('menu')}>{t.cat_ichimlik}</span></li>
-            </ul>
-          </div>
-          <div>
-            <div className="footer-heading">{t.nav_contact}</div>
-            <ul className="footer-links">
-              <li><a href="#">Amir Temur 15, Toshkent</a></li>
-              <li><a href="tel:+998712345678">+998 71 234 56 78</a></li>
-              <li><a href="mailto:info@zafar.uz">info@zafar.uz</a></li>
-              <li><a href="#">10:00 – 23:00</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <span>{t.footer_copy}</span>
-          <span>{t.footer_credit}</span>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* SCROLL TO TOP */}
       {showScrollTop && (

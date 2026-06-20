@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
@@ -44,7 +43,7 @@ interface ReservationItem {
   date: string;
   time: string;
   guests: string;
-  tableNumber?: string; // ── YANGI ──
+  tableNumber?: string;
   wish: string;
   createdAt?: string;
 }
@@ -66,7 +65,6 @@ interface MenuItem {
   meta: string;
 }
 
-// ── YANGI: MIJOZLAR FIKRI INTERFACI ──
 interface CustomerReview {
   id: string;
   name: string;
@@ -168,13 +166,12 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
   const [password, setPassword] = useState('');
   const [loginErr, setLoginErr] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'menuEdit'>('dashboard');
+  // ── 3 TA SAHIFA UCHUN TAB STATE YANGILANDI ──
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'menuEdit'>('dashboard');
 
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [menuList, setMenuList] = useState<MenuItem[]>([]);
-  
-  // ── YANGI: MIJOZLAR FIKRLARI STATE'I ──
   const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
 
   const [newDish, setNewDish] = useState({
@@ -197,7 +194,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
 
     const fetchAllData = async () => {
       try {
-        // 1. Buyurtmalar
         const ordersRes = await fetch(`${DB_URL}/orders.json`);
         const ordersData = await ordersRes.json();
         const fetchedOrders = ordersData ? Object.keys(ordersData).map(key => ({
@@ -206,7 +202,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setOrders(fetchedOrders);
 
-        // 2. Stol band qilishlar
         const resRes = await fetch(`${DB_URL}/reservations.json`);
         const resData = await resRes.json();
         const fetchedRes = resData ? Object.keys(resData).map(key => ({
@@ -215,7 +210,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setReservations(fetchedRes);
 
-        // 3. Mijozlar sharhlari (YANGI) [1]
         const reviewsRes = await fetch(`${DB_URL}/reviews.json`);
         const reviewsData = await reviewsRes.json();
         const fetchedReviews = reviewsData ? Object.keys(reviewsData).map(key => ({
@@ -224,7 +218,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         })) : [];
         setCustomerReviews(fetchedReviews);
 
-        // 4. Menyu ro'yxati
         const menuRes = await fetch(`${DB_URL}/menu.json`);
         const menuData = await menuRes.json();
         if (menuData) {
@@ -440,351 +433,371 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         </div>
       </header>
 
-      <div className="admin-tabs">
-        <button className={`admin-tab ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <TrendingUp size={18} strokeWidth={1.5} /> Statistika va Buyurtmalar
-        </button>
-        <button className={`admin-tab ${activeTab === 'menuEdit' ? 'active' : ''}`} onClick={() => setActiveTab('menuEdit')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Utensils size={18} strokeWidth={1.5} /> Menyuni Tahrirlash ({menuList.length})
-        </button>
-      </div>
+      {/* ── 💻 GEMINI USLUBIDAGI CHAP TOMONDAGI SIDEBAR NAVIGATSIYA ── */}
+      <div className="admin-container">
+        <aside className="admin-sidebar">
+          <button 
+            className={`admin-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <TrendingUp size={18} strokeWidth={1.5} />
+            <span>Statistika va Buyurtmalar</span>
+          </button>
+          
+          <button 
+            className={`admin-tab-btn ${activeTab === 'requests' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('requests')}
+          >
+            <Calendar size={18} strokeWidth={1.5} />
+            <span>Arizalar va Sharhlar</span>
+          </button>
 
-      <div className="admin-body">
-        {activeTab === 'dashboard' && (
-          <div className="dashboard-content">
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-icon"><ShoppingBag size={32} strokeWidth={1.5} color="var(--gold)" /></div>
-                <div>
-                  <div className="stat-val">{orders.length} ta</div>
-                  <div className="stat-lbl">Umumiy Buyurtmalar</div>
-                </div>
-              </div>
-              <div className="stat-card gold-card">
-                <div className="stat-icon"><TrendingUp size={32} strokeWidth={1.5} color="#F0CC90" /></div>
-                <div>
-                  <div className="stat-val">{totalRevenue.toLocaleString()} so'm</div>
-                  <div className="stat-lbl">Jami Tushum</div>
-                </div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon"><Calendar size={32} strokeWidth={1.5} color="var(--gold)" /></div>
-                <div>
-                  <div className="stat-val">{reservations.length} ta</div>
-                  <div className="stat-lbl">Stol Band Qilishlar</div>
-                </div>
-              </div>
-            </div>
+          <button 
+            className={`admin-tab-btn ${activeTab === 'menuEdit' ? 'active' : ''}`} 
+            onClick={() => setActiveTab('menuEdit')}
+          >
+            <Utensils size={18} strokeWidth={1.5} />
+            <span>Menyuni Tahrirlash ({menuList.length})</span>
+          </button>
+        </aside>
 
-            <div className="tables-container">
-              <div className="admin-table-panel">
-                <div className="panel-head">
-                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ShoppingBag size={20} strokeWidth={1.5} color="var(--gold)" /> So'nggi Buyurtmalar (Oxirgi 25 tasi)
-                  </h3>
-                  <span>Umumiy: {orders.length} ta</span>
+        {/* ── JONLI ASOSIY SAHIFA KONTENTI ── */}
+        <main className="admin-main-content">
+          
+          {/* 1-sahifa: Statistika va Buyurtmalar */}
+          {activeTab === 'dashboard' && (
+            <div className="dashboard-content">
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-icon"><ShoppingBag size={32} strokeWidth={1.5} color="var(--gold)" /></div>
+                  <div>
+                    <div className="stat-val">{orders.length} ta</div>
+                    <div className="stat-lbl">Umumiy Buyurtmalar</div>
+                  </div>
                 </div>
-                {orders.length === 0 ? (
-                  <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi buyurtmalar yo'q.</p>
-                ) : (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Mijoz</th>
-                          <th>Telefon</th>
-                          <th>Dastavka Manzili / GPS</th>
-                          <th>Buyurtma Tarkibi</th>
-                          <th>Summa</th>
-                          <th>Vaqt</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orders.slice().reverse().slice(0, 25).map(ord => (
-                          <tr key={ord.id}>
-                            <td><b>{ord.customerName}</b></td>
-                            <td>{ord.customerPhone}</td>
-                            <td>
-                              <div style={{ fontSize: '0.85rem' }}>{ord.customerAddress || "Yo'q"}</div>
-                              {ord.gpsLocation && (
-                                <a 
-                                  href={ord.gpsLocation} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
-                                  style={{ 
-                                    color: 'var(--gold)', 
-                                    fontSize: '0.78rem', 
-                                    textDecoration: 'underline', 
-                                    display: 'inline-flex', 
-                                    alignItems: 'center', 
-                                    gap: '4px', 
-                                    marginTop: '4px',
-                                    fontWeight: 'bold'
-                                  }}
-                                >
-                                  📍 Xaritada ko'rish
-                                </a>
-                              )}
-                            </td>
-                            <td>
-                              {ord.items.map(i => `${i.nameUz} (${i.qty}x)`).join(', ')}
-                            </td>
-                            <td style={{ color: '#C9933A', fontWeight: 'bold' }}>
-                              {ord.total.toLocaleString()} so'm
-                            </td>
-                            <td>{ord.date}</td>
+                <div className="stat-card gold-card">
+                  <div className="stat-icon"><TrendingUp size={32} strokeWidth={1.5} color="#F0CC90" /></div>
+                  <div>
+                    <div className="stat-val">{totalRevenue.toLocaleString()} so'm</div>
+                    <div className="stat-lbl">Jami Tushum</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="tables-container">
+                <div className="admin-table-panel">
+                  <div className="panel-head">
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <ShoppingBag size={20} strokeWidth={1.5} color="var(--gold)" /> So'nggi Buyurtmalar (Oxirgi 25 tasi)
+                    </h3>
+                    <span>Umumiy: {orders.length} ta</span>
+                  </div>
+                  {orders.length === 0 ? (
+                    <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi buyurtmalar yo'q.</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Mijoz</th>
+                            <th>Telefon</th>
+                            <th>Dastavka Manzili / GPS</th>
+                            <th>Buyurtma Tarkibi</th>
+                            <th>Summa</th>
+                            <th>Vaqt</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-
-              <div className="admin-table-panel" style={{ marginTop: '32px' }}>
-                <div className="panel-head">
-                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Calendar size={20} strokeWidth={1.5} color="var(--gold)" /> Stol Band Qilish Arizalari (Oxirgi 25 tasi)
-                  </h3>
-                  <span>Umumiy: {reservations.length} ta</span>
-                </div>
-                {reservations.length === 0 ? (
-                  <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha stol band qilish arizalari yo'q.</p>
-                ) : (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Mijoz</th>
-                          <th>Telefon</th>
-                          <th>Sana va Vaqt</th>
-                          <th>Mehmonlar</th>
-                          <th>Stol Raqami</th> {/* ── YANGI STOL USTUNI ── */}
-                          <th>Istak</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {reservations.slice().reverse().slice(0, 25).map(res => (
-                          <tr key={res.id}>
-                            <td><b>{res.name}</b></td>
-                            <td>{res.phone}</td>
-                            <td><span className="badge-gold">{res.date} | {res.time}</span></td>
-                            <td>{res.guests}</td>
-                            
-                            {/* Stol raqami chiqariladi */}
-                            <td><span style={{ color: 'var(--gold)', fontWeight: 'bold' }}>{res.tableNumber || "Tanlanmagan"}</span></td>
-                            
-                            <td>{res.wish || "Yo'q"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-
-              {/* ── 🌟 YANGI: MIJOZLAR QOLDIRGAN JONLI SHARHLAR JADVALI ── */}
-              <div className="admin-table-panel" style={{ marginTop: '32px' }}>
-                <div className="panel-head">
-                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <TrendingUp size={20} strokeWidth={1.5} color="var(--gold)" /> Mijozlar Qoldirgan Fikrlar (Oxirgi 25 tasi)
-                  </h3>
-                  <span>Umumiy: {customerReviews.length} ta fikr</span>
-                </div>
-                {customerReviews.length === 0 ? (
-                  <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi sharhlar qoldirilmagan.</p>
-                ) : (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Mijoz</th>
-                          <th>Baho (Yulduzlar)</th>
-                          <th>Fikr-mulohaza (Opisaniye)</th>
-                          <th>Sana</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {customerReviews.slice().reverse().slice(0, 25).map(rev => (
-                          <tr key={rev.id}>
-                            <td><b>{rev.name}</b></td>
-                            <td style={{ color: 'var(--gold)', letterSpacing: '2px', fontSize: '1rem' }}>
-                              {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
-                            </td>
-                            <td style={{ fontStyle: 'italic', color: '#E8DEC8' }}>"{rev.text}"</td>
-                            <td>{rev.date}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'menuEdit' && (
-          <div className="menu-edit-content">
-            <div className="admin-form-panel">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <PlusCircle size={20} strokeWidth={1.5} color="var(--gold)" /> Yangi Taom Qo'shish
-              </h3>
-              <form onSubmit={handleAddDish} className="add-dish-form">
-                <div className="form-grid-3">
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Taom Nomi (UZ) *</label>
-                    <input type="text" required placeholder="Masalan: Samarqand Oshi" value={newDish.nameUz} onChange={e => setNewDish({...newDish, nameUz: e.target.value})} />
-                  </div>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Narxi (so'mda) *</label>
-                    <input type="number" required placeholder="45000" value={newDish.price} onChange={e => setNewDish({...newDish, price: e.target.value})} />
-                  </div>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Toifasi</label>
-                    <select value={newDish.cat} onChange={e => setNewDish({...newDish, cat: e.target.value})} className="admin-select" style={{ height: '45px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', padding: '0 10px' }}>
-                      <option value="milliy">🫕 Milliy</option>
-                      <option value="grill">🔥 Grill</option>
-                      <option value="shorva">🍲 Sho'rvalar</option>
-                      <option value="salat">🥗 Salatlar</option>
-                      <option value="non">🫓 Non va Somsa</option>
-                      <option value="ichimlik">🍵 Ichimliklar</option>
-                      <option value="shirinlik">🍮 Shirinliklar</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-grid-2" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Taom Rasmi (URL yoki Kamera/Fayl)</label>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <input 
-                        type="text" 
-                        placeholder="Rasm havolasini kiriting yoki yuklang..." 
-                        value={newDish.img} 
-                        onChange={e => setNewDish({...newDish, img: e.target.value})} 
-                        style={{ flex: 1 }}
-                      />
-                      <label style={{ 
-                        background: 'var(--gold)', 
-                        color: '#120D05', 
-                        padding: '12px 16px', 
-                        cursor: 'pointer', 
-                        fontSize: '0.85rem', 
-                        fontWeight: 'bold',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        margin: 0,
-                        height: '45px',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        📷 <span style={{ textTransform: 'uppercase', fontSize: '0.72rem' }}>Rasm olish</span>
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          onChange={handleImageUpload} 
-                          style={{ display: 'none' }} 
-                        />
-                      </label>
+                        </thead>
+                        <tbody>
+                          {orders.slice().reverse().slice(0, 25).map(ord => (
+                            <tr key={ord.id}>
+                              <td><b>{ord.customerName}</b></td>
+                              <td>{ord.customerPhone}</td>
+                              <td>
+                                <div style={{ fontSize: '0.85rem' }}>{ord.customerAddress || "Yo'q"}</div>
+                                {ord.gpsLocation && (
+                                  <a 
+                                    href={ord.gpsLocation} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    style={{ 
+                                      color: 'var(--gold)', 
+                                      fontSize: '0.78rem', 
+                                      textDecoration: 'underline', 
+                                      display: 'inline-flex', 
+                                      alignItems: 'center', 
+                                      gap: '4px', 
+                                      marginTop: '4px',
+                                      fontWeight: 'bold'
+                                    }}
+                                  >
+                                    📍 Xaritada ko'rish
+                                  </a>
+                                )}
+                              </td>
+                              <td>
+                                {ord.items.map(i => `${i.nameUz} (${i.qty}x)`).join(', ')}
+                              </td>
+                              <td style={{ color: '#C9933A', fontWeight: 'bold' }}>
+                                {ord.total.toLocaleString()} so'm
+                              </td>
+                              <td>{ord.date}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    
-                    {newDish.img && (
-                      <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <img src={newDish.img} alt="Rasm ko'rinishi" style={{ width: '80px', height: '55px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
-                        <button 
-                          type="button" 
-                          onClick={() => setNewDish(prev => ({ ...prev, img: '' }))}
-                          style={{
-                            background: 'rgba(212,112,58,0.15)',
-                            border: '1px solid rgba(212,112,58,0.3)',
-                            color: '#D4703A',
-                            padding: '6px 12px',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <Trash2 size={12} /> <span>Rasmni o'chirish</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 2-sahifa: Arizalar va Fikr-mulohazalar (Yangi sahifa) */}
+          {activeTab === 'requests' && (
+            <div className="requests-content">
+              <div className="tables-container">
+                <div className="admin-table-panel">
+                  <div className="panel-head">
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Calendar size={20} strokeWidth={1.5} color="var(--gold)" /> Stol Band Qilish Arizalari (Oxirgi 25 tasi)
+                    </h3>
+                    <span>Umumiy: {reservations.length} ta</span>
+                  </div>
+                  {reservations.length === 0 ? (
+                    <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha stol band qilish arizalari yo'q.</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Mijoz</th>
+                            <th>Telefon</th>
+                            <th>Sana va Vaqt</th>
+                            <th>Mehmonlar</th>
+                            <th>Stol Raqami</th>
+                            <th>Istak</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reservations.slice().reverse().slice(0, 25).map(res => (
+                            <tr key={res.id}>
+                              <td><b>{res.name}</b></td>
+                              <td>{res.phone}</td>
+                              <td><span className="badge-gold">{res.date} | {res.time}</span></td>
+                              <td>{res.guests}</td>
+                              <td><span style={{ color: 'var(--gold)', fontWeight: 'bold' }}>{res.tableNumber || "Tanlanmagan"}</span></td>
+                              <td>{res.wish || "Yo'q"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                <div className="admin-table-panel" style={{ marginTop: '32px' }}>
+                  <div className="panel-head">
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <TrendingUp size={20} strokeWidth={1.5} color="var(--gold)" /> Mijozlar Qoldirgan Fikrlar (Oxirgi 25 tasi)
+                    </h3>
+                    <span>Umumiy: {customerReviews.length} ta fikr</span>
+                  </div>
+                  {customerReviews.length === 0 ? (
+                    <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi sharhlar qoldirilmagan.</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Mijoz</th>
+                            <th>Baho (Yulduzlar)</th>
+                            <th>Fikr-mulohaza (Opisaniye)</th>
+                            <th>Sana</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {customerReviews.slice().reverse().slice(0, 25).map(rev => (
+                            <tr key={rev.id}>
+                              <td><b>{rev.name}</b></td>
+                              <td style={{ color: 'var(--gold)', letterSpacing: '2px', fontSize: '1rem' }}>
+                                {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+                              </td>
+                              <td style={{ fontStyle: 'italic', color: '#E8DEC8' }}>"{rev.text}"</td>
+                              <td>{rev.date}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3-sahifa: Menyuni Tahrirlash */}
+          {activeTab === 'menuEdit' && (
+            <div className="menu-edit-content">
+              <div className="admin-form-panel">
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <PlusCircle size={20} strokeWidth={1.5} color="var(--gold)" /> Yangi Taom Qo'shish
+                </h3>
+                <form onSubmit={handleAddDish} className="add-dish-form">
+                  <div className="form-grid-3">
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Taom Nomi (UZ) *</label>
+                      <input type="text" required placeholder="Masalan: Samarqand Oshi" value={newDish.nameUz} onChange={e => setNewDish({...newDish, nameUz: e.target.value})} />
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Narxi (so'mda) *</label>
+                      <input type="number" required placeholder="45000" value={newDish.price} onChange={e => setNewDish({...newDish, price: e.target.value})} />
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Toifasi</label>
+                      <select value={newDish.cat} onChange={e => setNewDish({...newDish, cat: e.target.value})} className="admin-select" style={{ height: '45px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', padding: '0 10px' }}>
+                        <option value="milliy">🫕 Milliy</option>
+                        <option value="grill">🔥 Grill</option>
+                        <option value="shorva">🍲 Sho'rvalar</option>
+                        <option value="salat">🥗 Salatlar</option>
+                        <option value="non">🫓 Non va Somsa</option>
+                        <option value="ichimlik">🍵 Ichimliklar</option>
+                        <option value="shirinlik">🍮 Shirinliklar</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="form-grid-2" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Taom Rasmi (URL yoki Kamera/Fayl) [1]</label>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input 
+                          type="text" 
+                          placeholder="Rasm havolasini kiriting yoki yuklang..." 
+                          value={newDish.img} 
+                          onChange={e => setNewDish({...newDish, img: e.target.value})} 
+                          style={{ flex: 1 }}
+                        />
+                        <label style={{ 
+                          background: 'var(--gold)', 
+                          color: '#120D05', 
+                          padding: '12px 16px', 
+                          cursor: 'pointer', 
+                          fontSize: '0.85rem', 
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          margin: 0,
+                          height: '45px',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          📷 <span style={{ textTransform: 'uppercase', fontSize: '0.72rem' }}>Rasm olish</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleImageUpload} 
+                            style={{ display: 'none' }} 
+                          />
+                        </label>
+                      </div>
+                      
+                      {newDish.img && (
+                        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img src={newDish.img} alt="Rasm ko'rinishi" style={{ width: '80px', height: '55px', objectFit: 'cover', border: '1px solid var(--gold)' }} />
+                          <button 
+                            type="button" 
+                            onClick={() => setNewDish(prev => ({ ...prev, img: '' }))}
+                            style={{
+                              background: 'rgba(212,112,58,0.15)',
+                              border: '1px solid rgba(212,112,58,0.3)',
+                              color: '#D4703A',
+                              padding: '6px 12px',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <Trash2 size={12} /> <span>Rasmni o'chirish</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Qisqa ta'rif / Meta</label>
+                      <input type="text" placeholder="🔥 35 min • 👤 1–2" value={newDish.meta} onChange={e => setNewDish({...newDish, meta: e.target.value})} />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Taom Ta'rifi / Tavsifi (UZ) *</label>
+                      <textarea 
+                        required 
+                        placeholder="Taom tarkibi, tayyorlanishi yoki ta'rifi..." 
+                        value={newDish.descUz} 
+                        onChange={e => setNewDish({...newDish, descUz: e.target.value})} 
+                        style={{ padding: '12px 16px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', outline: 'none', resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Tavsifi (RU) - ixtiyoriy</label>
+                      <textarea 
+                        placeholder="Описание блюда на русском..." 
+                        value={newDish.descRu} 
+                        onChange={e => setNewDish({...newDish, descRu: e.target.value})} 
+                        style={{ padding: '12px 16px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', outline: 'none', resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label>Tavsifi (EN) - ixtiyoriy</label>
+                      <textarea 
+                        placeholder="Description in English..." 
+                        value={newDish.descEn} 
+                        onChange={e => setNewDish({...newDish, descEn: e.target.value})} 
+                        style={{ padding: '12px 16px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', outline: 'none', resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                  </div>
+
+                  <button type="submit" className="admin-btn-gold" style={{ width: 'fit-content', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Plus size={16} strokeWidth={2} /> Menyuga Qo'shish
+                  </button>
+                </form>
+              </div>
+
+              <div className="admin-table-panel" style={{ marginTop: '32px' }}>
+                <div className="panel-head">
+                  <h3>🍽️ Hozirgi Menyu Ro'yxati</h3>
+                  <span>Jami {menuList.length} ta taom</span>
+                </div>
+
+                <div className="admin-dish-grid">
+                  {menuList.map(dish => (
+                    <div key={dish.id} className="admin-dish-card">
+                      <img src={dish.img} alt={dish.nameUz} />
+                      <div className="dish-info">
+                        <span className="cat-tag">{dish.cat.toUpperCase()}</span>
+                        <h4>{dish.nameUz}</h4>
+                        <div className="price">{dish.price.toLocaleString()} so'm</div>
+                      </div>
+                      <div className="dish-actions">
+                        <button className="edit-btn" onClick={() => setEditingDish(dish)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <Edit size={14} strokeWidth={1.5} /> Tahrirlash
+                        </button>
+                        <button className="del-btn" onClick={() => handleDeleteDish(dish.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <Trash2 size={14} strokeWidth={1.5} /> O'chirish
                         </button>
                       </div>
-                    )}
-                  </div>
-
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Qisqa ta'rif / Meta</label>
-                    <input type="text" placeholder="🔥 35 min • 👤 1–2" value={newDish.meta} onChange={e => setNewDish({...newDish, meta: e.target.value})} />
-                  </div>
-                </div>
-
-                <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Taom Ta'rifi / Tavsifi (UZ) *</label>
-                    <textarea 
-                      required 
-                      placeholder="Taom tarkibi, tayyorlanishi yoki ta'rifi..." 
-                      value={newDish.descUz} 
-                      onChange={e => setNewDish({...newDish, descUz: e.target.value})} 
-                      style={{ padding: '12px 16px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', outline: 'none', resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
-                    />
-                  </div>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Tavsifi (RU) - ixtiyoriy</label>
-                    <textarea 
-                      placeholder="Описание блюда на русском..." 
-                      value={newDish.descRu} 
-                      onChange={e => setNewDish({...newDish, descRu: e.target.value})} 
-                      style={{ padding: '12px 16px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', outline: 'none', resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
-                    />
-                  </div>
-                  <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label>Tavsifi (EN) - ixtiyoriy</label>
-                    <textarea 
-                      placeholder="Description in English..." 
-                      value={newDish.descEn} 
-                      onChange={e => setNewDish({...newDish, descEn: e.target.value})} 
-                      style={{ padding: '12px 16px', background: '#120D05', border: '1px solid rgba(201,147,58,0.3)', color: '#F5EFE0', outline: 'none', resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="admin-btn-gold" style={{ width: 'fit-content', marginTop: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Plus size={16} strokeWidth={2} /> Menyuga Qo'shish
-                </button>
-              </form>
-            </div>
-
-            <div className="admin-table-panel" style={{ marginTop: '32px' }}>
-              <div className="panel-head">
-                <h3>🍽️ Hozirgi Menyu Ro'yxati</h3>
-                <span>Jami {menuList.length} ta taom</span>
-              </div>
-
-              <div className="admin-dish-grid">
-                {menuList.map(dish => (
-                  <div key={dish.id} className="admin-dish-card">
-                    <img src={dish.img} alt={dish.nameUz} />
-                    <div className="dish-info">
-                      <span className="cat-tag">{dish.cat.toUpperCase()}</span>
-                      <h4>{dish.nameUz}</h4>
-                      <div className="price">{dish.price.toLocaleString()} so'm</div>
                     </div>
-                    <div className="dish-actions">
-                      <button className="edit-btn" onClick={() => setEditingDish(dish)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                        <Edit size={14} strokeWidth={1.5} /> Tahrirlash
-                      </button>
-                      <button className="del-btn" onClick={() => handleDeleteDish(dish.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                        <Trash2 size={14} strokeWidth={1.5} /> O'chirish
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </main>
       </div>
 
       {editingDish && (
