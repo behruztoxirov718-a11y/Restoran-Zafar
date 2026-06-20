@@ -18,7 +18,7 @@ import {
   Send, 
   CheckCircle2,
   MapPin,
-  Star // ── INTEGRATSIYA UCHUN QO'SHILDI ──
+  Star
 } from 'lucide-react';
 
 const DB_URL = "https://zafar-restoran-default-rtdb.firebaseio.com";
@@ -160,7 +160,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
   const [orderError, setOrderError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // ── YANGI: FEEDBACK (BAHOLASH) FORM STATE'LARI ──
   const [feedbackRating, setFeedbackRating] = useState<number>(5);
   const [feedbackText, setFeedbackText] = useState<string>('');
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
@@ -360,7 +359,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
           body: JSON.stringify(newOrderObj)
         });
 
-        setOrderSuccess(true); // Buyurtma muvaffaqiyatli ketdi, endi quyidagi feedback formasi ko'rinadi
+        setOrderSuccess(true);
       } else {
         setOrderError('Xatolik: ' + (data.description || "noma'lum"));
       }
@@ -371,7 +370,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     }
   };
 
-  // ── YANGI: MIJOZNING 5 YULDUZLI FIKRINI BAZAGA YUBORISH ──
   const handleFeedbackSubmit = async () => {
     setIsSendingFeedback(true);
     const feedbackObj = {
@@ -389,7 +387,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
       });
       setFeedbackSuccess(true);
       setTimeout(() => {
-        // Hamma holatni tozalaymiz va modalni yopamiz
         setCart([]);
         setIsOrderModalOpen(false);
         setIsCartOpen(false);
@@ -436,7 +433,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     </div>
   );
 
-  // ── SKELETON LOADER QAYTARISH ──
+  // SKELETON LOADER QAYTARISH
   if (isLoading) {
     return (
       <>
@@ -479,7 +476,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
     );
   }
 
-  // ── MENYU ASOSIY SAHIFASINI QAYTARISH ──
+  // MENYU SAHIFASI
   return (
     <>
       <div className="menu-hero" id="menuHero" data-word={t.hero_word}>
@@ -646,7 +643,17 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                     <span>{t.cart_total}</span>
                     <span className="cart-total-price">{totalPrice.toLocaleString()} {t.currency}</span>
                   </div>
-                  <button className="checkout-btn" onClick={() => setIsOrderModalOpen(true)}>{t.checkout_btn}</button>
+                  
+                  {/* ── 🛠️ TUZATILDI: BUYURTMA BERISh BOSILGANDA SAVATNING OZINI YOPISh BUYRUG'I QO'SHILDI ── */}
+                  <button 
+                    className="checkout-btn" 
+                    onClick={() => {
+                      setIsOrderModalOpen(true);
+                      setIsCartOpen(false); // <--- SAVAT OYNASI AUTOMATIK YOPILADI!
+                    }}
+                  >
+                    {t.checkout_btn}
+                  </button>
                 </div>
               </>
             )}
@@ -662,8 +669,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
               <p>{lang === 'uz' ? "Ma'lumotlaringizni kiriting" : lang === 'ru' ? 'Введите ваши данные' : 'Enter your details'}</p>
               <button className="order-modal-close" onClick={() => setIsOrderModalOpen(false)}>✕</button>
             </div>
-            
-            {/* ── 🌟 BUYURTMA FORMASI YOKI 5 YULDUZLI FIKR QOLDIRISH FORMASI ── */}
             {!orderSuccess ? (
               <div className="order-modal-body">
                 <div className="order-summary">
@@ -700,6 +705,7 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                   />
                 </div>
 
+                {/* ── 📍 MANZIL VA GPS ANIKLASH INPUTI (YANGI FUNKSIYONALLIK) ── */}
                 <div className="order-field">
                   <label>{lang === 'uz' ? 'Yetkazib berish manzili' : lang === 'ru' ? 'Адрес доставки' : 'Delivery Address'}</label>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -760,7 +766,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                       {lang === 'uz' ? 'Operatorimiz tez orada bog\'lanadi. Iltimos, xizmatimizni baholang:' : 'Оператор свяжется в ближайшее время. Пожалуйста, оцените нас:'}
                     </p>
 
-                    {/* Yulduzchalar qatori */}
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '18px' }}>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button 
@@ -779,7 +784,6 @@ const Menu: React.FC<MenuProps> = ({ lang, cart, setCart }) => {
                       ))}
                     </div>
 
-                    {/* Fikr matni textarea */}
                     <div className="order-field" style={{ width: '100%', textAlign: 'left', marginBottom: '16px' }}>
                       <label style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
                         {lang === 'uz' ? 'Fikr-mulohazangiz (ixtiyoriy):' : 'Ваш отзыв (необязательно):'}
