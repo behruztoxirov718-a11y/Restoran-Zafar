@@ -166,13 +166,18 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
   const [password, setPassword] = useState('');
   const [loginErr, setLoginErr] = useState('');
 
-  // ── 3 TA SAHIFA UCHUN TAB STATE YANGILANDI ──
   const [activeTab, setActiveTab] = useState<'dashboard' | 'requests' | 'menuEdit'>('dashboard');
 
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [menuList, setMenuList] = useState<MenuItem[]>([]);
   const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
+
+  // ── 📊 DIAGRAMMA SINKRONIZATSIYA HOLATI ──
+  const [chartMode, setChartMode] = useState<'revenue' | 'count'>('revenue');
+
+  // ── 🌟 YANGI: SHARHLAR FILTR STATE'I ──
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'withText' | 'noText'>('all');
 
   const [newDish, setNewDish] = useState({
     nameUz: '', nameRu: '', nameEn: '',
@@ -393,6 +398,80 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
 
   const totalRevenue = orders.reduce((sum, item) => sum + item.total, 0);
 
+  // Kunlik grafik statistikasi
+  const getDailyStats = () => {
+    const statsMap: { [date: string]: { count: number; revenue: number } } = {};
+    
+    orders.forEach(order => {
+      if (!order.date) return;
+      const dateStr = order.date.split(',')[0].trim();
+      if (!statsMap[dateStr]) {
+        statsMap[dateStr] = { count: 0, revenue: 0 };
+      }
+      statsMap[dateStr].count += 1;
+      statsMap[dateStr].revenue += order.total;
+    });
+
+    const sortedDates = Object.keys(statsMap).sort((a, b) => {
+      const partsA = a.split('.').map(Number);
+      const partsB = b.split('.').map(Number);
+      const dateA = new Date(partsA[2], partsA[1] - 1, partsA[0]);
+      const dateB = new Date(partsB[2], partsB[1] - 1, partsB[0]);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    return sortedDates.slice(-7).map(date => ({
+      date,
+      count: statsMap[date].count,
+      revenue: statsMap[date].revenue
+    }));
+  };
+
+  const dailyStats = getDailyStats();
+  const maxVal = Math.max(...dailyStats.map(d => chartMode === 'revenue' ? d.revenue : d.count), chartMode === 'revenue' ? 100000 : 5);
+
+  const chartWidth = 700;
+  const chartHeight = 220;
+  const paddingX = 50;
+  const paddingY = 40;
+
+  const points = dailyStats.map((d, index) => {
+    const x = paddingX + (index * (chartWidth - 2 * paddingX)) / (dailyStats.length - 1 || 1);
+    const val = chartMode === 'revenue' ? d.revenue : d.count;
+    const y = chartHeight - paddingY - (val * (chartHeight - 2 * paddingY)) / maxVal;
+    return { x, y, label: d.date.substring(0, 5), value: val }; 
+  });
+
+  const linePath = points.map((p, index) => `${index === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const areaPath = points.length > 0 
+    ? `${linePath} L ${points[points.length - 1].x} ${chartHeight - paddingY} L ${points[0].x} ${chartHeight - paddingY} Z`
+    : '';
+
+  // ── 🌟 DASTUR FILTR KODI: JONLI SHARHLARNI SARALASH ──
+  const getFilteredReviews = () => {
+    return customerReviews.filter(rev => {
+      const hasText = rev.text && rev.text !== "Fikr qoldirilmadi." && rev.text.trim() !== "";
+      if (reviewFilter === 'withText') return hasText;
+      if (reviewFilter === 'noText') return !hasText;
+      return true; // Barchasi
+    });
+  };
+
+  const filteredReviews = getFilteredReviews().slice().reverse().slice(0, 25);
+
+  // Filtr tugmalari uchun dinamik uslub [1]
+  const filterBtnStyle = (isActive: boolean) => ({
+    background: isActive ? 'var(--gold)' : 'transparent',
+    color: isActive ? '#120D05' : 'var(--muted)',
+    border: '1px solid rgba(201,147,58,0.3)',
+    padding: '6px 12px',
+    fontSize: '0.75rem',
+    fontWeight: 'bold' as const,
+    cursor: 'pointer',
+    borderRadius: '2px',
+    transition: 'all 0.2s'
+  });
+
   if (!isLoggedIn) {
     return (
       <div className="admin-login-wrap">
@@ -433,7 +512,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
         </div>
       </header>
 
-      {/* ── 💻 GEMINI USLUBIDAGI CHAP TOMONDAGI SIDEBAR NAVIGATSIYA ── */}
+      {/* GEMINI SIDEBAR NAVIGATSIYA */}
       <div className="admin-container">
         <aside className="admin-sidebar">
           <button 
@@ -461,7 +540,6 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
           </button>
         </aside>
 
-        {/* ── JONLI ASOSIY SAHIFA KONTENTI ── */}
         <main className="admin-main-content">
           
           {/* 1-sahifa: Statistika va Buyurtmalar */}
@@ -482,6 +560,97 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                     <div className="stat-lbl">Jami Tushum</div>
                   </div>
                 </div>
+              </div>
+
+              {/* DYNAMIC AREA CHART PANEL */}
+              <div className="admin-table-panel" style={{ marginBottom: '32px' }}>
+                <div className="panel-head" style={{ borderBottom: 'none', marginBottom: '14px' }}>
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <TrendingUp size={20} strokeWidth={1.5} color="var(--gold)" /> Biznes Dinamikasi (Oxirgi 7 kun)
+                  </h3>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => setChartMode('revenue')} 
+                      style={{
+                        background: chartMode === 'revenue' ? 'var(--gold)' : 'transparent',
+                        color: chartMode === 'revenue' ? '#120D05' : 'var(--muted)',
+                        border: '1px solid rgba(201,147,58,0.3)',
+                        padding: '6px 14px',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        borderRadius: '2px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      Tushum (so'm)
+                    </button>
+                    <button 
+                      onClick={() => setChartMode('count')} 
+                      style={{
+                        background: chartMode === 'count' ? 'var(--gold)' : 'transparent',
+                        color: chartMode === 'count' ? '#120D05' : 'var(--muted)',
+                        border: '1px solid rgba(201,147,58,0.3)',
+                        padding: '6px 14px',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        borderRadius: '2px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      Soni (ta)
+                    </button>
+                  </div>
+                </div>
+
+                {dailyStats.length === 0 ? (
+                  <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '40px' }}>Hozircha grafikni tuzish uchun buyurtmalar yetarli emas.</p>
+                ) : (
+                  <div style={{ width: '100%', overflowX: 'auto' }}>
+                    <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height="100%" style={{ background: '#120D05', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '4px', padding: '10px 0' }}>
+                      <defs>
+                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="var(--gold)" stopOpacity="0.4"/>
+                          <stop offset="100%" stopColor="var(--gold)" stopOpacity="0"/>
+                        </linearGradient>
+                      </defs>
+                      
+                      {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                        const y = paddingY + ratio * (chartHeight - 2 * paddingY);
+                        const val = Math.round(maxVal * (1 - ratio));
+                        return (
+                          <g key={i} opacity="0.15">
+                            <line x1={paddingX} y1={y} x2={chartWidth - paddingX} y2={y} stroke="#fff" strokeDasharray="4 4" />
+                            <text x={paddingX - 10} y={y + 4} fill="#fff" fontSize="10" textAnchor="end">
+                              {chartMode === 'revenue' ? `${(val / 1000).toFixed(0)}k` : val}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {points.length > 0 && (
+                        <>
+                          <path d={areaPath} fill="url(#chartGradient)" />
+                          <path d={linePath} fill="none" stroke="var(--gold)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                        </>
+                      )}
+
+                      {points.map((p, i) => (
+                        <g key={i}>
+                          <circle cx={p.x} cy={p.y} r="5" fill="#120D05" stroke="var(--gold)" strokeWidth="3" style={{ cursor: 'pointer' }} />
+                          <text x={p.x} y={chartHeight - paddingY + 20} fill="var(--muted)" fontSize="10" textAnchor="middle" fontWeight="bold">
+                            {p.label}
+                          </text>
+                          <text x={p.x} y={p.y - 12} fill="#F0CC90" fontSize="10" textAnchor="middle" fontWeight="black">
+                            {chartMode === 'revenue' ? `${(p.value / 1000).toFixed(0)}k` : `${p.value} ta`}
+                          </text>
+                        </g>
+                      ))}
+                    </svg>
+                  </div>
+                )}
               </div>
 
               <div className="tables-container">
@@ -552,7 +721,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
             </div>
           )}
 
-          {/* 2-sahifa: Arizalar va Fikr-mulohazalar (Yangi sahifa) */}
+          {/* 2-sahifa: Arizalar va Fikr-mulohazalar */}
           {activeTab === 'requests' && (
             <div className="requests-content">
               <div className="tables-container">
@@ -595,15 +764,38 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                   )}
                 </div>
 
+                {/* ── 🌟 JONLI FILTRLANADIGAN MIJOZLAR FIKRLARI PANELI ── */}
                 <div className="admin-table-panel" style={{ marginTop: '32px' }}>
-                  <div className="panel-head">
+                  <div className="panel-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                     <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <TrendingUp size={20} strokeWidth={1.5} color="var(--gold)" /> Mijozlar Qoldirgan Fikrlar (Oxirgi 25 tasi)
                     </h3>
-                    <span>Umumiy: {customerReviews.length} ta fikr</span>
+                    
+                    {/* ── JONLI FILTR TUGMALARI ── */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button 
+                        onClick={() => setReviewFilter('all')} 
+                        style={filterBtnStyle(reviewFilter === 'all')}
+                      >
+                        Barchasi ({customerReviews.length})
+                      </button>
+                      <button 
+                        onClick={() => setReviewFilter('withText')} 
+                        style={filterBtnStyle(reviewFilter === 'withText')}
+                      >
+                        Fikr yozganlar ({customerReviews.filter(r => r.text && r.text !== "Fikr qoldirilmadi." && r.text.trim() !== "").length})
+                      </button>
+                      <button 
+                        onClick={() => setReviewFilter('noText')} 
+                        style={filterBtnStyle(reviewFilter === 'noText')}
+                      >
+                        Faqat baholaganlar ({customerReviews.filter(r => !r.text || r.text === "Fikr qoldirilmadi." || r.text.trim() === "").length})
+                      </button>
+                    </div>
                   </div>
-                  {customerReviews.length === 0 ? (
-                    <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Hozircha yangi sharhlar qoldirilmagan.</p>
+                  
+                  {filteredReviews.length === 0 ? (
+                    <p className="empty-txt" style={{ color: '#7A6E5E', textAlign: 'center', padding: '20px' }}>Ushbu filtr bo'yicha ma'lumot topilmadi.</p>
                   ) : (
                     <div style={{ overflowX: 'auto' }}>
                       <table className="admin-table">
@@ -616,7 +808,7 @@ const Admin: React.FC<AdminProps> = ({ onGoHome }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {customerReviews.slice().reverse().slice(0, 25).map(rev => (
+                          {filteredReviews.map(rev => (
                             <tr key={rev.id}>
                               <td><b>{rev.name}</b></td>
                               <td style={{ color: 'var(--gold)', letterSpacing: '2px', fontSize: '1rem' }}>
